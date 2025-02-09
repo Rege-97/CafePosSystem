@@ -33,6 +33,10 @@ public class PopUpWindow {
 
 	// 기본 팝업 메서드
 	public void showPopUp(String title, String message1, String message2) {
+		if(popup!=null&&popup.isVisible()) {
+			return;
+		}
+		
 		this.title = title;
 		this.message1 = message1;
 		this.message2 = message2;
@@ -124,12 +128,9 @@ public class PopUpWindow {
 
 	// 결제 완료 팝업 메서드
 	public void showPopUp(CafePosSystem_pay cpsp,int rankup,String rankname) {
-		this.title = title;
-		this.message1 = message1;
-		this.message2 = message2;
-		
-		int click=0;
-
+		if(popup!=null&&popup.isVisible()) {
+			return;
+		}
 		Font font_1 = new Font("Default Font", Font.BOLD, 13);
 		Font font_2 = new Font("Default Font", Font.BOLD, 12);
 
@@ -233,6 +234,10 @@ public class PopUpWindow {
 
 	// 초기화 기능 팝업
 	public void showResetPopup(String title, MainFrame mf, Connection conn, String table) {
+		if(popup!=null&&popup.isVisible()) {
+			return;
+		}
+		
 		this.title = title;
 		
 
@@ -416,7 +421,10 @@ public class PopUpWindow {
 
 	// 퀵 메뉴 고객 등록 팝업
 	public void quickGuestAdd(Connection conn) {
-
+		if(popup!=null&&popup.isVisible()) {
+			return;
+		}
+		
 		Font font_1 = new Font("Default Font", Font.BOLD, 15);
 		Font font_2 = new Font("Default Font", Font.BOLD, 12);
 
@@ -526,7 +534,9 @@ public class PopUpWindow {
 
 	// 퀵 메뉴 메뉴 등록 팝업
 	public void quickMenuAdd(Connection conn) {
-
+		if(popup!=null&&popup.isVisible()) {
+			return;
+		}
 		Font font_1 = new Font("Default Font", Font.BOLD, 15);
 		Font font_2 = new Font("Default Font", Font.BOLD, 12);
 
@@ -656,7 +666,9 @@ public class PopUpWindow {
 
 	// 퀵 메뉴 포인트 지급 팝업
 	public void quickPointAdd(Connection conn) {
-
+		if(popup!=null&&popup.isVisible()) {
+			return;
+		}
 		Font font_1 = new Font("Default Font", Font.BOLD, 15);
 		Font font_2 = new Font("Default Font", Font.BOLD, 12);
 
@@ -763,40 +775,13 @@ public class PopUpWindow {
 
 					while (rs.next()) {
 
-						String no_empty = "";
-						String name_empty = "";
-						String point_empty = "";
-
 						gusno = rs.getInt("gusno");
 						gusname = rs.getString("gusname");
 						guspoint = rs.getInt("guspoint");
-						String guspoint_s = guspoint + "";
 						gustel = rs.getString("gustel");
 
 						if (gusno == 0) {
 							continue;
-						}
-
-						if (gusno < 10) {
-							no_empty = "         ";
-						} else if (gusno >= 10 && gusno < 100) {
-							no_empty = "       ";
-						} else {
-							no_empty = "     ";
-						}
-
-						for (int i = 0; i < 16 - (gusname.length() * 3); i++) {
-							name_empty += " ";
-						}
-
-						if (guspoint_s.length() < 2) {
-							for (int i = 0; i < 14 - (guspoint_s.length() * 2); i++) {
-								point_empty += " ";
-							}
-						} else {
-							for (int i = 0; i < 15 - (guspoint_s.length() * 2); i++) {
-								point_empty += " ";
-							}
 						}
 
 						li_guest.add(" " + emptySet(gusno+"", 8) + emptySet_Kor(gusname, 18) + emptySet(guspoint+"", 20) + gustel);

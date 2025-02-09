@@ -21,11 +21,14 @@ public class MainFrame extends Frame implements ActionListener {
 	Button bt_pay, bt_guest, bt_menu, bt_emp, bt_sale;
 	Font f_title, f_subtitle, f_menu, f_cat;
 
-	Panel p_center_center, p_center_center_center, p_center_center_south;
-	Label temp, temp2, temp3, temp4, lb_title, lb_id, lb_pwd;
+	Panel p_center_center, p_center_center_center, p_center_center_south, p_center_north, p_center_north_south,
+			p_center_center_north, p_center_center_north_center, p_center_center_north_center_west,
+			p_center_center_north_center_center, p_center_center_north_east;
+	Label temp, temp2, temp3, temp4, lb_title, lb_id, lb_pwd, lb_subtitle, lb_editer1, lb_editer2, lb_editer3,
+			lb_editer4, lb_editer5;
 	TextField tf_id, tf_pwd;
-	Button bt_login, bt_findId;
-
+	Button bt_login, bt_findid, bt_findpwd;
+	Checkbox cb_checkpwd;
 	boolean login;
 
 	static Connection conn;
@@ -46,7 +49,6 @@ public class MainFrame extends Frame implements ActionListener {
 			setLocation(x, y);
 
 			this.setLayout(new BorderLayout());
-			System.out.println(this.getFont());
 
 			f_title = new Font("Default Font", Font.BOLD, 15);
 			f_subtitle = new Font("Default Font", Font.BOLD, 12);
@@ -55,10 +57,8 @@ public class MainFrame extends Frame implements ActionListener {
 
 			puw = new PopUpWindow(this);
 
-			p_center = new Panel(new BorderLayout());
-			this.add(p_center, "Center");
-
 			gname = "";
+
 			login();
 
 			this.validate();
@@ -70,8 +70,6 @@ public class MainFrame extends Frame implements ActionListener {
 					System.exit(0);
 				}
 			});
-
-			bt_login.addActionListener(this);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -94,68 +92,148 @@ public class MainFrame extends Frame implements ActionListener {
 
 		///////////// 메인/////////////
 		p_center = new Panel(new BorderLayout());
-		this.add(p_center, "Center");
+		this.add(p_center);
 		///////////// 상단/////////////
 		///
-		Panel p_center_north=new Panel(new BorderLayout());
+		p_center_north = new Panel(new BorderLayout()) {
+			public Insets getInsets() {
+				return new Insets(130, 0, 20, 0); // 상, 좌, 하, 우 여백 설정
+			}
+		};
+
 		p_center.add(p_center_north, "North");
-		p_center_north.setPreferredSize(new Dimension(800,300));
-		
+
 		lb_title = new Label("쌍용 1팀 카페", Label.CENTER);
-		lb_title.setFont(new Font("Default Font",Font.BOLD,50));
-		p_center_north.add(lb_title,"Center");
-		
-		Panel p_center_north_south = new Panel(new GridLayout(1,5));
-		p_center_north.add(p_center_north_south,"South");
-		
-		Label lb_editer1 = new Label("김채현", Label.CENTER);
-		Label lb_editer2 = new Label("김호찬", Label.CENTER);
-		Label lb_editer3 = new Label("오진우", Label.CENTER);
-		Label lb_editer4 = new Label("박현진", Label.CENTER);
-		Label lb_editer5 = new Label("박주연", Label.CENTER);
+		lb_title.setFont(new Font("Default Font", Font.BOLD, 50));
+		p_center_north.add(lb_title, "North");
+
+		lb_subtitle = new Label("Cafe Pos System", Label.CENTER);
+		lb_subtitle.setFont(new Font("Default Font", Font.ITALIC, 20));
+		p_center_north.add(lb_subtitle, "Center");
+
+		p_center_north_south = new Panel(new FlowLayout());
+		p_center_north.add(p_center_north_south, "South");
+
+		lb_editer1 = new Label("김채현", Label.CENTER);
+		lb_editer2 = new Label("김호찬", Label.CENTER);
+		lb_editer3 = new Label("오진우", Label.CENTER);
+		lb_editer4 = new Label("박현진", Label.CENTER);
+		lb_editer5 = new Label("박주연", Label.CENTER);
 		p_center_north_south.add(lb_editer1);
 		p_center_north_south.add(lb_editer2);
 		p_center_north_south.add(lb_editer3);
 		p_center_north_south.add(lb_editer4);
 		p_center_north_south.add(lb_editer5);
-		
-		
+
 		///////////// 중단/////////////
+		///
+		///
 
-		p_center_center = new Panel(new BorderLayout(0, 20));
+		p_center_center = new Panel(new BorderLayout(10, 10)) {
+			public Insets getInsets() {
+				return new Insets(10, 250, 10, 250); // 상, 좌, 하, 우 여백 설정
+			}
+		};
+
 		p_center.add(p_center_center, "Center");
-		
 
-		p_center_center_center = new Panel(new GridLayout(2, 2));
-		p_center_center.add(p_center_center_center, "Center");
+		p_center_center_north = new Panel(new BorderLayout(10, 20));
+		p_center_center_north.setPreferredSize(new Dimension(100, 50));
+		p_center_center.add(p_center_center_north, "North");
+		p_center_center_north_center = new Panel(new BorderLayout(10, 10));
+		p_center_center_north.add(p_center_center_north_center, "Center");
+		p_center_center_north_center_west = new Panel(new GridLayout(2, 1));
+		p_center_center_north_center.add(p_center_center_north_center_west, "West");
 		lb_id = new Label("아이디", Label.CENTER);
-		tf_id = new TextField(10);
 		lb_pwd = new Label("비밀번호", Label.CENTER);
+		p_center_center_north_center_west.add(lb_id);
+		p_center_center_north_center_west.add(lb_pwd);
+
+		p_center_center_north_center_center = new Panel(new GridLayout(2, 1));
+		p_center_center_north_center.add(p_center_center_north_center_center, "Center");
+		tf_id = new TextField(10);
 		tf_pwd = new TextField(10);
 		tf_pwd.setEchoChar('*');
+		p_center_center_north_center_center.add(tf_id);
+		p_center_center_north_center_center.add(tf_pwd);
 
-		p_center_center_center.add(lb_id);
-		p_center_center_center.add(tf_id);
-		p_center_center_center.add(lb_pwd);
-		p_center_center_center.add(tf_pwd);
-
-		p_center_center_south = new Panel(new FlowLayout());
-		p_center_center.add(p_center_center_south, "South");
+		p_center_center_north_east = new Panel(new BorderLayout());
+		p_center_center_north.add(p_center_center_north_east, "East");
 		bt_login = new Button("로그인");
-		bt_findId = new Button("아이디,비밀번호 찾기");
-		p_center_center_south.add(bt_login);
-		p_center_center_south.add(bt_findId);
+		bt_login.setFont(new Font("Default Font", Font.BOLD, 13));
+		p_center_center_north_east.add(bt_login);
 
-		///////////// 중단의 서쪽/////////////
-		temp2 = new Label("");
-		p_center.add(temp2, "West");
-		///////////// 중단의 동쪽/////////////
-		temp3 = new Label("");
-		p_center.add(temp3, "East");
-		///////////// 하단//////////////////
-		temp4 = new Label("");
-		p_center.add(temp4, "South");
+		p_center_center_center = new Panel(new FlowLayout(FlowLayout.RIGHT));
+		p_center_center.add(p_center_center_center, "Center");
 
+		cb_checkpwd = new Checkbox("비밀번호 확인", false);
+		bt_findid = new Button("ID 찾기");
+		bt_findpwd = new Button("비밀번호 찾기");
+
+		p_center_center_center.add(cb_checkpwd);
+		p_center_center_center.add(bt_findid);
+		p_center_center_center.add(bt_findpwd);
+
+		cb_checkpwd.addItemListener(new ItemListener() {
+
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (cb_checkpwd.getState()) {
+					tf_pwd.setEchoChar('0');
+				} else {
+					tf_pwd.setEchoChar('*');
+				}
+
+			}
+		});
+
+		bt_login.addActionListener(this);
+		tf_id.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				try {
+					if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+						loginCheck();
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		tf_pwd.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				try {
+					if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+						loginCheck();
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
 		mi_close.addActionListener(this);
 
 	}
@@ -304,6 +382,10 @@ public class MainFrame extends Frame implements ActionListener {
 				this.validate();
 
 			} else if (ob == bt_guest) {
+				remove(p_center);
+				p_center = new CafePosSystem_guest(this, conn);
+				this.add(p_center, "Center");
+				this.validate();
 
 			} else if (ob == bt_menu) {
 				remove(p_center);
@@ -318,31 +400,13 @@ public class MainFrame extends Frame implements ActionListener {
 				this.validate();
 
 			} else if (ob == bt_sale) {
+				remove(p_center);
+				p_center = new CafePosSystem_sale(this, conn);
+				this.add(p_center, "Center");
+				this.validate();
 
 			} else if (ob == bt_login) {
-				sql = "select * from employee where eid=? and epwd=?";
-				PreparedStatement ps = conn.prepareStatement(sql);
-				ps.setString(1, tf_id.getText());
-				ps.setString(2, tf_pwd.getText());
-
-				ResultSet rs = ps.executeQuery();
-				while (rs.next()) {
-					if (tf_id.getText().equals(rs.getString("eid")) && tf_pwd.getText().equals(rs.getString("epwd"))) {
-						login = true;
-						gname = rs.getString("gname");
-					}
-				}
-				if (login) {
-					setMenu();
-					remove(p_center);
-					p_center = new CafePosSystem_pay(this, conn);
-					this.add(p_center, "Center");
-					this.validate();
-				} else {
-					puw.showPopUp("로그인", "ID와 패스워드가 틀렸습니다.", "아이디와 패스워드를 확인하세요.");
-				}
-
-			
+				loginCheck();
 			}
 
 		} catch (Exception e1) {
@@ -351,9 +415,34 @@ public class MainFrame extends Frame implements ActionListener {
 
 	}
 
+	// 로그인 확인
+	public void loginCheck() throws Exception {
+		sql = "select * from employee where eid=? and epwd=?";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setString(1, tf_id.getText());
+		ps.setString(2, tf_pwd.getText());
+
+		ResultSet rs = ps.executeQuery();
+		while (rs.next()) {
+			if (tf_id.getText().equals(rs.getString("eid")) && tf_pwd.getText().equals(rs.getString("epwd"))) {
+				login = true;
+				gname = rs.getString("gname");
+			}
+		}
+		if (login) {
+			setMenu();
+			remove(p_center);
+			p_center = new CafePosSystem_pay(this, conn);
+			this.add(p_center, "Center");
+			this.validate();
+		} else {
+			puw.showPopUp("로그인", "ID와 패스워드가 틀렸습니다.", "아이디와 패스워드를 확인하세요.");
+		}
+	}
+
 	@Override
 	public Insets insets() {
-		Insets i = new Insets(50, 0, 0, 0);
+		Insets i = new Insets(45, 0, 0, 0);
 		return i;
 	}
 

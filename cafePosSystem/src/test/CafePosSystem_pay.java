@@ -742,16 +742,9 @@ public class CafePosSystem_pay extends Panel {
 
 			while (rs.next()) {
 
-				String no_empty = "";
-				String name_empty = "";
-				String point_empty = "";
-				String tel_empty = "";
-				String rank_empty = "";
-
 				gusno = rs.getInt("gusno");
 				gusname = rs.getString("gusname");
 				guspoint = rs.getInt("guspoint");
-				String guspoint_s = guspoint + "";
 				gustel = rs.getString("gustel");
 				rname = rs.getString("rname");
 				gussale = rs.getInt("gussale");
