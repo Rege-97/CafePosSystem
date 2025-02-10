@@ -302,18 +302,13 @@ public class CafePosSystem_pay extends Panel {
 
 		// 이벤트
 
-		tf_menu_count.addKeyListener(new KeyListener() {
+		tf_menu_count.addKeyListener(new KeyAdapter() {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
 				if (!(e.getKeyChar() >= 48 && e.getKeyChar() <= 57)) {
 					e.consume();
 				}
-
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
 
 			}
 
@@ -324,28 +319,18 @@ public class CafePosSystem_pay extends Panel {
 				}
 			}
 		});
-		tf_usepoint.addKeyListener(new KeyListener() {
+		tf_usepoint.addKeyListener(new KeyAdapter() {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
 				if (!(e.getKeyChar() >= 48 && e.getKeyChar() <= 57)) {
 					e.consume();
 				}
-
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
 
 			}
 		});
 
-		tf_getmoney.addKeyListener(new KeyListener() {
+		tf_getmoney.addKeyListener(new KeyAdapter() {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -354,12 +339,6 @@ public class CafePosSystem_pay extends Panel {
 				}
 
 			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-
-			}
-
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (!(tf_getmoney.getText().equals("")) && e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -795,13 +774,29 @@ public class CafePosSystem_pay extends Panel {
 				PreparedStatement ps = conn.prepareStatement(sql);
 				ResultSet rs = ps.executeQuery();
 				while (rs.next()) {
-					bank_to_money += rs.getInt("money");
+					bank_to_money = rs.getInt("money");
 				}
-				bank_to_money = bank_to_money + (int) ((allmoney * 0.9) - usepoint);
+				
+				int deposit=(int) ((allmoney * 0.9) - usepoint);
+				bank_to_money = bank_to_money + deposit;
 				sql = "update bank set money=?";
 				ps = conn.prepareStatement(sql);
 				ps.setInt(1, bank_to_money);
 				ps.executeUpdate();
+				
+				
+				// 뱅킹 기록
+				Calendar now = Calendar.getInstance();
+				java.sql.Timestamp jst = new java.sql.Timestamp(now.getTimeInMillis());
+				sql="insert into banking values(sq_banking_bno.nextval,?,?,?,?)";
+				ps=conn.prepareStatement(sql);
+				ps.setString(1, "판매");
+				ps.setInt(2,deposit );
+				ps.setInt(3, bank_to_money);
+				ps.setTimestamp(4, jst);
+				
+				ps.execute();
+				
 
 				if (!tf_gusno.getText().equals("0")) {
 					if (usepoint > 0) {
@@ -879,8 +874,7 @@ public class CafePosSystem_pay extends Panel {
 				}
 				// 결제 기록 저장
 
-				Calendar now = Calendar.getInstance();
-				java.sql.Timestamp jst = new java.sql.Timestamp(now.getTimeInMillis());
+				
 				int menucount = 0;
 				int menuprice = 0;
 

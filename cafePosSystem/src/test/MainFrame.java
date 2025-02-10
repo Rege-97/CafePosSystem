@@ -18,17 +18,16 @@ public class MainFrame extends Frame implements ActionListener {
 	MenuItem mi_reset_guest, mi_reset_menu, mi_reset_emp, mi_reset_sale, mi_reset_all;
 
 	Panel p_north, p_center;
-	Button bt_pay, bt_guest, bt_menu, bt_emp, bt_sale;
+	Button bt_pay, bt_guest, bt_menu, bt_emp, bt_sale,bt_bank;
 	Font f_title, f_subtitle, f_menu, f_cat;
 
 	Panel p_center_center, p_center_center_center, p_center_center_south, p_center_north, p_center_north_south,
 			p_center_center_north, p_center_center_north_center, p_center_center_north_center_west,
 			p_center_center_north_center_center, p_center_center_north_east;
-	Label temp, temp2, temp3, temp4, lb_title, lb_id, lb_pwd, lb_subtitle, lb_editer1, lb_editer2, lb_editer3,
-			lb_editer4, lb_editer5;
+	Label lb_title, lb_id, lb_pwd, lb_subtitle, lb_editer1, lb_editer2, lb_editer3, lb_editer4, lb_editer5;
 	TextField tf_id, tf_pwd;
 	Button bt_login, bt_findid, bt_findpwd;
-	Checkbox cb_checkpwd;
+	Checkbox cb_autoid, cb_checkpwd;
 	boolean login;
 
 	static Connection conn;
@@ -103,8 +102,9 @@ public class MainFrame extends Frame implements ActionListener {
 
 		p_center.add(p_center_north, "North");
 
-		lb_title = new Label("쌍용 1팀 카페", Label.CENTER);
-		lb_title.setFont(new Font("Default Font", Font.BOLD, 50));
+		lb_title = new Label("CAFE DMOA", Label.CENTER);
+		lb_title.setForeground(Color.pink);
+		lb_title.setFont(new Font("Default Font", Font.BOLD, 60));
 		p_center_north.add(lb_title, "North");
 
 		lb_subtitle = new Label("Cafe Pos System", Label.CENTER);
@@ -131,7 +131,7 @@ public class MainFrame extends Frame implements ActionListener {
 
 		p_center_center = new Panel(new BorderLayout(10, 10)) {
 			public Insets getInsets() {
-				return new Insets(10, 250, 10, 250); // 상, 좌, 하, 우 여백 설정
+				return new Insets(10, 240, 10, 240); // 상, 좌, 하, 우 여백 설정
 			}
 		};
 
@@ -166,20 +166,62 @@ public class MainFrame extends Frame implements ActionListener {
 		p_center_center_center = new Panel(new FlowLayout(FlowLayout.RIGHT));
 		p_center_center.add(p_center_center_center, "Center");
 
+		cb_autoid = new Checkbox("ID 저장", false);
 		cb_checkpwd = new Checkbox("비밀번호 확인", false);
 		bt_findid = new Button("ID 찾기");
 		bt_findpwd = new Button("비밀번호 찾기");
 
+		p_center_center_center.add(cb_autoid);
 		p_center_center_center.add(cb_checkpwd);
 		p_center_center_center.add(bt_findid);
 		p_center_center_center.add(bt_findpwd);
+		boolean hasauto = false;
+
+		try {
+			sql = "select * from employee where eauto = 1";
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+				tf_id.setText(rs.getString("eid"));
+				hasauto = true;
+			}
+
+			if (hasauto) {
+				cb_autoid.setState(true);
+			}
+
+			rs.close();
+			ps.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// 이벤트
+
+		tf_id.setFocusable(true);
+		this.setFocusable(true);
+
+		this.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				try {
+					if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+						loginCheck();
+
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
 
 		cb_checkpwd.addItemListener(new ItemListener() {
 
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (cb_checkpwd.getState()) {
-					tf_pwd.setEchoChar('0');
+					tf_pwd.setEchoChar((char) 0);
 				} else {
 					tf_pwd.setEchoChar('*');
 				}
@@ -187,53 +229,35 @@ public class MainFrame extends Frame implements ActionListener {
 			}
 		});
 
+		tf_id.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				try {
+					if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+						loginCheck();
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		tf_pwd.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				try {
+					if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+						loginCheck();
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
 		bt_login.addActionListener(this);
-		tf_id.addKeyListener(new KeyListener() {
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				try {
-					if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-						loginCheck();
-					}
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
-		tf_pwd.addKeyListener(new KeyListener() {
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				try {
-					if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-						loginCheck();
-					}
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
+		bt_findid.addActionListener(this);
+		bt_findpwd.addActionListener(this);
 		mi_close.addActionListener(this);
 
 	}
@@ -280,18 +304,23 @@ public class MainFrame extends Frame implements ActionListener {
 		bt_menu = new Button("메뉴 관리");
 		bt_emp = new Button("직원 관리");
 		bt_sale = new Button("영업 현황");
+		bt_bank = new Button("인터넷 뱅킹");
 
 		bt_pay.setFont(f_subtitle);
 		bt_guest.setFont(f_subtitle);
 		bt_menu.setFont(f_subtitle);
 		bt_emp.setFont(f_subtitle);
 		bt_sale.setFont(f_subtitle);
+		bt_bank.setFont(f_subtitle);
+
+		p_north.setPreferredSize(new Dimension(800, 30));
 
 		p_north.add(bt_pay);
 		p_north.add(bt_guest);
 		p_north.add(bt_menu);
 		p_north.add(bt_emp);
 		p_north.add(bt_sale);
+		p_north.add(bt_bank);
 
 		// 파일 메뉴
 		mi_logout.addActionListener(this);
@@ -315,6 +344,7 @@ public class MainFrame extends Frame implements ActionListener {
 		bt_menu.addActionListener(this);
 		bt_emp.addActionListener(this);
 		bt_sale.addActionListener(this);
+		bt_bank.addActionListener(this);
 
 	}
 
@@ -342,38 +372,19 @@ public class MainFrame extends Frame implements ActionListener {
 				puw.quickMenuAdd(conn);
 
 			} else if (ob == mi_reset_guest) {
-				try {
-					puw.showResetPopup("회원 정보 초기화", this, conn, "guest");
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
+				puw.showResetPopup("회원 정보 초기화", this, conn, "guest");
+
 			} else if (ob == mi_reset_menu) {
-				try {
-					puw.showResetPopup("메뉴 정보 초기화", this, conn, "menu");
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
+				puw.showResetPopup("메뉴 정보 초기화", this, conn, "menu");
 
 			} else if (ob == mi_reset_emp) {
-				try {
-					puw.showResetPopup("직원 정보 초기화", this, conn, "emp");
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
+				puw.showResetPopup("직원 정보 초기화", this, conn, "emp");
 
 			} else if (ob == mi_reset_sale) {
-				try {
-					puw.showResetPopup("영업 현황 초기화", this, conn, "sale");
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
+				puw.showResetPopup("영업 현황 초기화", this, conn, "sale");
 
 			} else if (ob == mi_reset_all) {
-				try {
-					puw.showResetPopup("메뉴 정보 초기화", this, conn, "all");
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
+				puw.showResetPopup("메뉴 정보 초기화", this, conn, "all");
 
 			} else if (ob == bt_pay) {
 				remove(p_center);
@@ -405,8 +416,18 @@ public class MainFrame extends Frame implements ActionListener {
 				this.add(p_center, "Center");
 				this.validate();
 
+			}else if (ob == bt_bank) {
+				remove(p_center);
+				p_center = new CafePosSystem_bank(this, conn);
+				this.add(p_center, "Center");
+				this.validate();
+
 			} else if (ob == bt_login) {
 				loginCheck();
+			} else if (ob == bt_findid) {
+				puw.findId(conn);
+			} else if (ob == bt_findpwd) {
+				puw.findPwd(conn);
 			}
 
 		} catch (Exception e1) {
@@ -430,6 +451,26 @@ public class MainFrame extends Frame implements ActionListener {
 			}
 		}
 		if (login) {
+			if (cb_autoid.getState()) {
+				sql = "update employee set eauto=0";
+
+				ps = conn.prepareStatement(sql);
+				ps.execute();
+
+				sql = "update employee set eauto=1 where eid=?";
+				ps = conn.prepareStatement(sql);
+				ps.setString(1, tf_id.getText());
+				ps.execute();
+			}else {
+				sql = "update employee set eauto=0";
+
+				ps = conn.prepareStatement(sql);
+				ps.execute();
+			}
+			
+			rs.close();
+			ps.close();
+
 			setMenu();
 			remove(p_center);
 			p_center = new CafePosSystem_pay(this, conn);

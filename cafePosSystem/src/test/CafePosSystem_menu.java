@@ -17,10 +17,11 @@ public class CafePosSystem_menu extends Panel{
 	PreparedStatement pstmt;
     ResultSet rs;
     Frame frame;
-	
+    PopUpWindow puw = new PopUpWindow(frame);
+    
 	/**메뉴 관련 컴포넌트*/ 
 	Button bt_msearch, bt_mview, bt_minsert, bt_mupdate, bt_mdelete, bt_mreset;
-	TextField tf_mname, tf_mprice, tf_search, tf_menufield;
+	TextField tf_mno, tf_mname, tf_mprice, tf_search, tf_menufield;
 	List li_menufield;
 	CheckboxGroup cbg_menugroup;
     Checkbox cbg_mno, cbg_mname;
@@ -53,7 +54,7 @@ public class CafePosSystem_menu extends Panel{
 	public CafePosSystem_menu(Frame frame, Connection conn) {
 		this.conn = conn;
 		this.frame = frame;
-
+		
 		//폰트 지정
 		Font f_title = new Font("Default Font", Font.BOLD, 15);
 		Font f_subtitle = new Font("Default Font", Font.BOLD, 12);
@@ -62,7 +63,7 @@ public class CafePosSystem_menu extends Panel{
 		
 		/**메뉴GUI**/ 
 		//전체 패널
-	
+		
 		this.setLayout(new BorderLayout(0,20));
 		
 
@@ -125,13 +126,9 @@ public class CafePosSystem_menu extends Panel{
 		p_center_center.add(tf_menufield,"North");
 		tf_menufield.setFont(f_menu);
 		
-		li_menufield = new List(100);
+		li_menufield = new List();
 		li_menufield.setFont(f_menu);
-		
-		ScrollPane sp_menufield = new ScrollPane();
 		p_center_center.add(li_menufield,"Center");
-		
-		
 		
 		//하단
 		Panel p_south = new Panel(new BorderLayout(10,10));
@@ -152,11 +149,16 @@ public class CafePosSystem_menu extends Panel{
 		Panel p_south_center = new Panel(new GridLayout(2,2));
 		p_south.add(p_south_center,"Center");
 		
+		Label lb_mno = new Label("메뉴번호",Label.CENTER);
+		p_south_center.add(lb_mno);
 		Label lb_mname = new Label("메뉴명",Label.CENTER);
 		p_south_center.add(lb_mname);
 		Label lb_mprice = new Label("가격",Label.CENTER);
 		p_south_center.add(lb_mprice);
 		
+		tf_mno = new TextField();
+		p_south_center.add(tf_mno);
+		tf_mno.setEditable(false);
 		tf_mname = new TextField();
 		p_south_center.add(tf_mname);
 		tf_mprice = new TextField();
@@ -230,6 +232,22 @@ public class CafePosSystem_menu extends Panel{
 		        }
 		    }
 		});
+		li_menufield.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				String selected = li_menufield.getSelectedItem();
+				String[] tokens = selected.split("\\s+");
+		        String strMno = tokens[0].trim();
+		        String selectedMname = tokens[1].trim();
+		        String selectedMprice = tokens[2].trim();
+			     
+                tf_mno.setText(strMno);
+                tf_mname.setText(selectedMname);
+                tf_mprice.setText(selectedMprice);
+				
+			}
+		});
 		//가격창
 		tf_mprice.addKeyListener(new KeyListener() {
 			
@@ -249,7 +267,6 @@ public class CafePosSystem_menu extends Panel{
 			
 			@Override
 			public void keyPressed(KeyEvent e) {
-				// TODO Auto-generated method stub
 				
 			}
 		});
@@ -298,6 +315,7 @@ public class CafePosSystem_menu extends Panel{
 		bt_mreset.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				tf_mno.setText("");
 				tf_mname.setText("");
 	            tf_mprice.setText("");
 			}
@@ -330,7 +348,7 @@ public class CafePosSystem_menu extends Panel{
     
     /**메뉴목록 갱신**/
     private void refreshMenuList() {
-        String sql = "SELECT mno, mname, mprice FROM menu ORDER BY mno";
+        String sql = "SELECT mno, mname, mprice FROM menu ORDER BY mno ASC";
         try (PreparedStatement selectPstmt = conn.prepareStatement(sql);
              ResultSet rs = selectPstmt.executeQuery()) {
             li_menufield.removeAll(); // 리스트 초기화
@@ -339,45 +357,17 @@ public class CafePosSystem_menu extends Panel{
                 li_menufield.add(row); // UI 리스트 추가
             }
         } catch (SQLException ex) {
-            showDialog("오류가 발생하였습니다. 다시 실행해주세요.", "메뉴목록 갱신 오류");
+            puw.showPopUp("메뉴목록 갱신 오류", "오류가 발생하였습니다.", "다시 실행해주세요.");
             ex.printStackTrace();
         }
-    }
-    
-    /**알림 팝업창**/
-    private void showDialog(String message, String title) {
-    	
-    	//패널 생성
-        Panel p = new Panel();
-        Label menu_msgLabel = new Label(message, Label.CENTER);
-        
-        //다이얼로그 생성
-        final Dialog di_menu = new Dialog(frame, title, true);
-        di_menu.setLayout(new BorderLayout());
-        di_menu.add(menu_msgLabel, BorderLayout.CENTER);
-        di_menu.add(p, BorderLayout.SOUTH);
-        
-        //확인 버튼
-        Button bt_menuok = new Button("확인");
-        p.add(bt_menuok);
-        bt_menuok.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                di_menu.dispose(); // 해당 프레임 1개만 종료
-            }
-        });
-        
-        //전체 설정 후 띄우기
-        di_menu.setSize(300, 150);
-        di_menu.setLocationRelativeTo(this);
-        di_menu.setVisible(true);
     }
     
     /**검색**/
     private void searchMenu() {
         String keyword = tf_search.getText().trim();
+       
         if (keyword.isEmpty()) {
-            showDialog("검색어를 입력하세요.", "입력 오류");
+            puw.showPopUp("입력 오류","검색어를 입력하세요.",null);
             return;
         }
         try {
@@ -389,17 +379,17 @@ public class CafePosSystem_menu extends Panel{
                 //숫자 입력 오류 처리
                 try { searchmno = Integer.parseInt(keyword);
                 } catch (NumberFormatException nfe) {
-                    showDialog("메뉴번호는 숫자로 입력해야 합니다.", "입력 오류");
+                	puw.showPopUp("입력 오류","메뉴번호는 최대 9자리 이내의","숫자로 입력해주세요.");
                     return;
                 }
                 //DB 검색
-                String sql = "SELECT * FROM menu WHERE mno = ?";
+                String sql = "SELECT * FROM menu WHERE mno = ? ORDER BY mno ASC";
                 pstmt = conn.prepareStatement(sql);
                 pstmt.setInt(1, searchmno);
                 
             } else { //라디오버튼이 메뉴이름일 때
             	//DB 검색
-                String sql = "SELECT * FROM menu WHERE mname LIKE ?";
+                String sql = "SELECT * FROM menu WHERE mname LIKE ? ORDER BY mno ASC";
                 pstmt = conn.prepareStatement(sql);
                 pstmt.setString(1, "%" + keyword + "%");
             }
@@ -415,7 +405,7 @@ public class CafePosSystem_menu extends Panel{
             pstmt.close();
             
         } catch (Exception ex) {
-            showDialog("오류가 발생했습니다.", "오류");
+        	puw.showPopUp("오류","오류가 발생하였습니다.","다시 실행해주세요.");
             ex.printStackTrace();
         }
     }
@@ -424,7 +414,7 @@ public class CafePosSystem_menu extends Panel{
     private void viewAllMenu() {
         try {
         	//DB 전체 검색
-        	String sql = "SELECT * FROM menu"; 
+        	String sql = "SELECT * FROM menu ORDER BY mno ASC"; 
             pstmt = conn.prepareStatement(sql);
             
             //쿼리 실행
@@ -438,7 +428,7 @@ public class CafePosSystem_menu extends Panel{
             pstmt.close();
             
         } catch (Exception ex) {
-            showDialog("오류가 발생했습니다.", "오류");
+        	puw.showPopUp("오류","오류가 발생하였습니다.","다시 실행해주세요.");
             ex.printStackTrace();
         }
     }
@@ -451,7 +441,7 @@ public class CafePosSystem_menu extends Panel{
         try {
             mprice = Integer.parseInt(tf_mprice.getText().trim()); //공미포 숫자 저장
         } catch (NumberFormatException nfe) { 
-            showDialog("가격은 숫자로 입력해야 합니다.", "입력 오류");
+            puw.showPopUp("입력 오류","가격은 숫자로 입력해야 합니다.",null);
             return;
         }
         //DB 메뉴 등록
@@ -463,26 +453,27 @@ public class CafePosSystem_menu extends Panel{
             pstmt.executeUpdate();
             pstmt.close();
             refreshMenuList();
-            showDialog("메뉴가 등록되었습니다.", "등록 완료");
+            puw.showPopUp("등록 완료","메뉴가 등록되었습니다.",null);
             tf_mname.setText("");
             tf_mprice.setText("");
             
         } catch (Exception ex) {
-            showDialog("오류가 발생했습니다.", "오류");
+        	puw.showPopUp("오류","오류가 발생하였습니다.","다시 실행해주세요.");
             ex.printStackTrace();
         }
     }
     
     /**메뉴 수정**/
     private void updateMenu() {
+    	
         String selected = li_menufield.getSelectedItem();
         if (selected == null) {
-            showDialog("먼저 수정할 메뉴를 선택하세요.", "선택 오류");
+        	puw.showPopUp("선택 오류", "먼저 수정할 메뉴를 선택하세요.", null);
             return;
         }
-        String[] tokens = selected.split("\\|");
+        String[] tokens = selected.split(" ");
         if (tokens.length < 3) {
-            showDialog("선택된 메뉴 정보 형식이 잘못되었습니다.", "형식 오류");
+        	puw.showPopUp("형식 오류","선택된 메뉴 정보의","형식이 잘못되었습니다.");
             return;
         }
         String strMno = tokens[0].trim();
@@ -493,7 +484,7 @@ public class CafePosSystem_menu extends Panel{
         if (tf_mname.getText().trim().isEmpty() && tf_mprice.getText().trim().isEmpty()) {
             tf_mname.setText(selectedMname);
             tf_mprice.setText(selectedMprice);
-            showDialog("수정할 내용을 변경한 후, 다시 '수정' 버튼을 눌러주세요.", "안내");
+            puw.showPopUp("안내", "수정할 내용을 변경한 후,", "다시 '수정' 버튼을 눌러주세요.");
             return;
         }
         
@@ -501,7 +492,7 @@ public class CafePosSystem_menu extends Panel{
         try {
             mno = Integer.parseInt(strMno);
         } catch (NumberFormatException nfe) {
-            showDialog("메뉴 번호 변환 오류가 발생하였습니다.", "오류");
+            puw.showPopUp("변환 오류", "메뉴 번호 변환 오류가 발생하였습니다.", "번호는 숫자로 입력해주세요.");
             return;
         }
         String newMname = tf_mname.getText().trim();
@@ -509,7 +500,7 @@ public class CafePosSystem_menu extends Panel{
         try {
             newMprice = Integer.parseInt(tf_mprice.getText().trim());
         } catch (NumberFormatException nfe) {
-            showDialog("가격은 숫자로 입력하세요.", "입력 오류");
+            puw.showPopUp("입력 오류", "가격은 숫자로 입력하세요.", null);
             return;
         }
         
@@ -522,13 +513,13 @@ public class CafePosSystem_menu extends Panel{
             int rowsUpdated = pstmt.executeUpdate();
             pstmt.close();
             if (rowsUpdated > 0) {
-                showDialog("메뉴가 수정되었습니다.", "수정 완료");
+                puw.showPopUp("수정 완료", "메뉴가 수정되었습니다.", null);
                 refreshMenuList();
             } else {
-                showDialog("해당 메뉴가 없습니다.", "오류");
+                puw.showPopUp("수정 오류", "해당 메뉴가 없습니다.", null);
             }
         } catch (SQLException ex) {
-            showDialog("DB 오류가 발생했습니다.", "DB 오류");
+            puw.showPopUp("DB 오류", "DB 오류가 발생했습니다.", null);
             ex.printStackTrace();
         }
     }
@@ -537,19 +528,19 @@ public class CafePosSystem_menu extends Panel{
     private void deleteMenu() {
         String selected = li_menufield.getSelectedItem();
         if (selected == null) {
-            showDialog("먼저 삭제할 메뉴를 선택하세요.", "선택 오류");
+            puw.showPopUp("선택 오류", "먼저 삭제할 메뉴를 선택하세요.", null);
             return;
         }
-        String[] tokens = selected.split("\\|");
+        String[] tokens = selected.split(" ");
         if (tokens.length < 3) {
-            showDialog("선택된 메뉴 정보 형식이 잘못되었습니다.", "형식 오류");
+        	puw.showPopUp("형식 오류","선택된 메뉴 정보의","형식이 잘못되었습니다.");
             return;
         }
         int mno;
         try {
             mno = Integer.parseInt(tokens[0].trim());
         } catch (NumberFormatException nfe) {
-            showDialog("메뉴 번호 변환 오류.", "오류");
+        	puw.showPopUp("변환 오류", "메뉴 번호 변환 오류가 발생하였습니다.", "번호는 숫자로 입력해주세요.");
             return;
         }
         String sql = "DELETE FROM menu WHERE mno = ?";
@@ -559,13 +550,13 @@ public class CafePosSystem_menu extends Panel{
             int rowsDeleted = pstmt.executeUpdate();
             pstmt.close();
             if (rowsDeleted > 0) {
-                showDialog("메뉴가 삭제되었습니다.", "삭제 완료");
+                puw.showPopUp("삭제 완료", "메뉴가 삭제되었습니다.", null);
                 refreshMenuList();
             } else {
-                showDialog("해당 메뉴가 없습니다.", "오류");
+                puw.showPopUp("삭제 오류", "해당 메뉴가 없습니다.", null);
             }
         } catch (SQLException ex) {
-            showDialog("DB 오류가 발생했습니다.", "DB 오류");
+        	puw.showPopUp("DB 오류", "DB 오류가 발생했습니다.", null);
             ex.printStackTrace();
         }
     }

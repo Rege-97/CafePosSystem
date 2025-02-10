@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.DecimalFormat;
+import java.util.Calendar;
 
 public class PopUpWindow {
 	Frame frame;
@@ -33,14 +34,13 @@ public class PopUpWindow {
 
 	// 기본 팝업 메서드
 	public void showPopUp(String title, String message1, String message2) {
-		if(popup!=null&&popup.isVisible()) {
+		if (popup != null && popup.isVisible()) {
 			return;
 		}
-		
+
 		this.title = title;
 		this.message1 = message1;
 		this.message2 = message2;
-		
 
 		font_1 = new Font("Default Font", Font.BOLD, 13);
 		font_2 = new Font("Default Font", Font.BOLD, 13);
@@ -79,6 +79,20 @@ public class PopUpWindow {
 		p_popup_south.add(bt_popup_popclose);
 		popup.setVisible(true);
 		popup.setLocationRelativeTo(frame);
+
+		popup.setFocusable(true);
+		popup.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+
+					popup.setVisible(false);
+					popup.dispose();
+
+				}
+			}
+		});
+
 		bt_popup_popclose.addActionListener(new ActionListener() {
 
 			@Override
@@ -92,17 +106,7 @@ public class PopUpWindow {
 			}
 		});
 
-		bt_popup_popclose.addKeyListener(new KeyListener() {
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-
-			}
+		bt_popup_popclose.addKeyListener(new KeyAdapter() {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -112,7 +116,6 @@ public class PopUpWindow {
 					popup.dispose();
 
 				}
-				
 
 			}
 		});
@@ -127,8 +130,8 @@ public class PopUpWindow {
 	}
 
 	// 결제 완료 팝업 메서드
-	public void showPopUp(CafePosSystem_pay cpsp,int rankup,String rankname) {
-		if(popup!=null&&popup.isVisible()) {
+	public void showPopUp(CafePosSystem_pay cpsp, int rankup, String rankname) {
+		if (popup != null && popup.isVisible()) {
 			return;
 		}
 		Font font_1 = new Font("Default Font", Font.BOLD, 13);
@@ -145,7 +148,7 @@ public class PopUpWindow {
 
 		Panel p_popup_center = new Panel(new GridLayout(3, 1));
 
-		Label lb_popup_pop1 = new Label( "결제되었습니다", Label.CENTER);
+		Label lb_popup_pop1 = new Label("결제되었습니다", Label.CENTER);
 		Label lb_popup_pop2 = new Label("거스름 돈은 " + cpsp.tf_change.getText() + "원 입니다.", Label.CENTER);
 		Label lb_popup_pop3 = new Label("");
 		lb_popup_pop1.setFont(font_1);
@@ -153,7 +156,6 @@ public class PopUpWindow {
 
 		popup.add(p_popup_center, "Center");
 
-		
 		p_popup_center.add(lb_popup_pop1);
 		p_popup_center.add(lb_popup_pop2);
 		lb_popup_pop3 = new Label();
@@ -167,12 +169,29 @@ public class PopUpWindow {
 		p_popup_south.add(bt_popup_popclose);
 		popup.setVisible(true);
 		popup.setLocationRelativeTo(frame);
-		if (rankup==1) {
+
+		popup.setFocusable(true);
+		popup.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				try {
+					if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+						cpsp.payLayout();
+						popup.setVisible(false);
+						popup.dispose();
+
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		if (rankup == 1) {
 			p_popup_center.remove(lb_popup_pop3);
 			lb_popup_pop3 = new Label("회원 등급이 " + rankname + "(으)로 상승했습니다.", Label.CENTER);
 			lb_popup_pop3.setFont(font_1);
 			p_popup_center.add(lb_popup_pop3);
-			
+
 		}
 		bt_popup_popclose.addActionListener(new ActionListener() {
 
@@ -189,17 +208,7 @@ public class PopUpWindow {
 			}
 		});
 
-		bt_popup_popclose.addKeyListener(new KeyListener() {
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-
-			}
+		bt_popup_popclose.addKeyListener(new KeyAdapter() {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -234,12 +243,11 @@ public class PopUpWindow {
 
 	// 초기화 기능 팝업
 	public void showResetPopup(String title, MainFrame mf, Connection conn, String table) {
-		if(popup!=null&&popup.isVisible()) {
+		if (popup != null && popup.isVisible()) {
 			return;
 		}
-		
+
 		this.title = title;
-		
 
 		Font font_1 = new Font("Default Font", Font.BOLD, 15);
 		Font font_2 = new Font("Default Font", Font.BOLD, 12);
@@ -283,6 +291,19 @@ public class PopUpWindow {
 		p_popup_south.add(bt_popup_cancle);
 		popup.setVisible(true);
 		popup.setLocationRelativeTo(frame);
+
+		popup.setFocusable(true);
+		popup.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+
+					popup.setVisible(false);
+					popup.dispose();
+
+				}
+			}
+		});
 
 		bt_popup_ok.addActionListener(new ActionListener() {
 
@@ -421,10 +442,10 @@ public class PopUpWindow {
 
 	// 퀵 메뉴 고객 등록 팝업
 	public void quickGuestAdd(Connection conn) {
-		if(popup!=null&&popup.isVisible()) {
+		if (popup != null && popup.isVisible()) {
 			return;
 		}
-		
+
 		Font font_1 = new Font("Default Font", Font.BOLD, 15);
 		Font font_2 = new Font("Default Font", Font.BOLD, 12);
 
@@ -465,7 +486,20 @@ public class PopUpWindow {
 		p_popup_south.add(bt_popup_cancle);
 		popup.setVisible(true);
 		popup.setLocationRelativeTo(frame);
-		
+
+		popup.setFocusable(true);
+		popup.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+
+					popup.setVisible(false);
+					popup.dispose();
+
+				}
+			}
+		});
+
 		bt_popup_ok.addActionListener(new ActionListener() {
 
 			@Override
@@ -473,6 +507,7 @@ public class PopUpWindow {
 				try {
 					if (tf_gusname.getText().equals("") || tf_gustel.getText().equals("")) {
 						p_popup_center.removeAll();
+						p_popup_center.setLayout(new BorderLayout());
 						Label lb_waring = new Label("정보를 정확하게 입력해주세요!", Label.CENTER);
 						lb_waring.setFont(font_1);
 						p_popup_center.add(lb_waring);
@@ -480,7 +515,7 @@ public class PopUpWindow {
 
 						Thread.sleep(1500);
 						p_popup_center.removeAll();
-
+						p_popup_center.setLayout(new GridLayout(2, 2));
 						p_popup_center.add(lb_gusname);
 						p_popup_center.add(tf_gusname);
 						p_popup_center.add(lb_gustel);
@@ -534,7 +569,7 @@ public class PopUpWindow {
 
 	// 퀵 메뉴 메뉴 등록 팝업
 	public void quickMenuAdd(Connection conn) {
-		if(popup!=null&&popup.isVisible()) {
+		if (popup != null && popup.isVisible()) {
 			return;
 		}
 		Font font_1 = new Font("Default Font", Font.BOLD, 15);
@@ -578,7 +613,20 @@ public class PopUpWindow {
 		popup.setVisible(true);
 		popup.setLocationRelativeTo(frame);
 
-		tf_mprice.addKeyListener(new KeyListener() {
+		popup.setFocusable(true);
+		popup.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+
+					popup.setVisible(false);
+					popup.dispose();
+
+				}
+			}
+		});
+
+		tf_mprice.addKeyListener(new KeyAdapter() {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -587,15 +635,6 @@ public class PopUpWindow {
 				}
 			}
 
-			@Override
-			public void keyReleased(KeyEvent e) {
-
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-
-			}
 		});
 
 		bt_popup_ok.addActionListener(new ActionListener() {
@@ -605,6 +644,7 @@ public class PopUpWindow {
 				try {
 					if (tf_mname.getText().equals("") || tf_mprice.getText().equals("")) {
 						p_popup_center.removeAll();
+						p_popup_center.setLayout(new BorderLayout());
 						Label lb_waring = new Label("정보를 정확하게 입력해주세요!", Label.CENTER);
 						lb_waring.setFont(font_1);
 						p_popup_center.add(lb_waring);
@@ -612,7 +652,8 @@ public class PopUpWindow {
 
 						Thread.sleep(1500);
 						p_popup_center.removeAll();
-
+						p_popup_center.setLayout(new GridLayout(2, 2));
+						p_popup_center.setLayout(new BorderLayout());
 						p_popup_center.add(lb_mname);
 						p_popup_center.add(tf_mname);
 						p_popup_center.add(lb_mprice);
@@ -666,7 +707,7 @@ public class PopUpWindow {
 
 	// 퀵 메뉴 포인트 지급 팝업
 	public void quickPointAdd(Connection conn) {
-		if(popup!=null&&popup.isVisible()) {
+		if (popup != null && popup.isVisible()) {
 			return;
 		}
 		Font font_1 = new Font("Default Font", Font.BOLD, 15);
@@ -683,13 +724,13 @@ public class PopUpWindow {
 
 		Panel p_popup_north = new Panel(new BorderLayout(5, 5));
 		popup.add(p_popup_north, "North");
-		
-		Panel p_popup_north_north=new Panel(new BorderLayout());
-		p_popup_north.add(p_popup_north_north,"North");
+
+		Panel p_popup_north_north = new Panel(new BorderLayout());
+		p_popup_north.add(p_popup_north_north, "North");
 		TextField tf_cat = new TextField("번호  이름          포인트       전화번호");
 		tf_cat.setEditable(false);
-		tf_cat.setFont(new Font("Default Font",Font.PLAIN,10));
-		p_popup_north_north.add(tf_cat,"North");
+		tf_cat.setFont(new Font("Default Font", Font.PLAIN, 10));
+		p_popup_north_north.add(tf_cat, "North");
 		List li_guest = new List();
 		li_guest.setFont(f_cat);
 		p_popup_north_north.add(li_guest, "Center");
@@ -754,6 +795,19 @@ public class PopUpWindow {
 		popup.setVisible(true);
 		popup.setLocationRelativeTo(frame);
 
+		popup.setFocusable(true);
+		popup.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+
+					popup.setVisible(false);
+					popup.dispose();
+
+				}
+			}
+		});
+
 		bt_search.addActionListener(new ActionListener() {
 
 			@Override
@@ -784,7 +838,8 @@ public class PopUpWindow {
 							continue;
 						}
 
-						li_guest.add(" " + emptySet(gusno+"", 8) + emptySet_Kor(gusname, 18) + emptySet(guspoint+"", 20) + gustel);
+						li_guest.add(" " + emptySet(gusno + "", 8) + emptySet_Kor(gusname, 18)
+								+ emptySet(guspoint + "", 20) + gustel);
 					}
 					rs.close();
 					ps.close();
@@ -907,37 +962,480 @@ public class PopUpWindow {
 		});
 
 	}
-public static String emptySet_Kor(String text,int length) {
-		
-		StringBuffer empty_s=new StringBuffer();
-		StringBuffer result=new StringBuffer();
-		length-=text.length()*3;
-		for(int i=0;i<length;i++) {
-			empty_s.append(" ");
+
+	// 아이디 찾기 팝업
+	public void findId(Connection conn) {
+		if (popup != null && popup.isVisible()) {
+			return;
 		}
-		result.append(text);
-		result.append(empty_s.toString());
-		
-		
-	    return result.toString();
+
+		Font font_1 = new Font("Default Font", Font.BOLD, 15);
+		Font font_2 = new Font("Default Font", Font.BOLD, 12);
+
+		popup = new Dialog(frame, "ID 찾기") {
+			@Override
+			public Insets getInsets() {
+				return new Insets(40, 20, 15, 20);
+			}
+		};
+		popup.setSize(300, 150);
+		popup.setLayout(new BorderLayout());
+
+		Panel p_popup_center = new Panel(new GridLayout(3, 2));
+		Label lb_eno = new Label("직원 번호");
+		lb_eno.setFont(font_2);
+		TextField tf_eno = new TextField();
+		Label lb_ename = new Label("직원 이름");
+		lb_ename.setFont(font_2);
+		TextField tf_ename = new TextField();
+		Label lb_etel = new Label("직원 전화번호");
+		lb_etel.setFont(font_2);
+		TextField tf_etel = new TextField();
+
+		popup.add(p_popup_center, "Center");
+		p_popup_center.add(lb_eno);
+		p_popup_center.add(tf_eno);
+		p_popup_center.add(lb_ename);
+		p_popup_center.add(tf_ename);
+		p_popup_center.add(lb_etel);
+		p_popup_center.add(tf_etel);
+
+		Panel p_popup_south = new Panel(new FlowLayout());
+		popup.add(p_popup_south, "South");
+		Button bt_popup_ok = new Button("찾기");
+		bt_popup_ok.setPreferredSize(new Dimension(100, 20));
+		bt_popup_ok.setFont(font_2);
+
+		Button bt_popup_cancle = new Button("취소");
+		bt_popup_cancle.setPreferredSize(new Dimension(100, 20));
+		bt_popup_cancle.setFont(font_2);
+
+		p_popup_south.add(bt_popup_ok);
+		p_popup_south.add(bt_popup_cancle);
+		popup.setVisible(true);
+		popup.setLocationRelativeTo(frame);
+
+		popup.setFocusable(true);
+		popup.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+
+					popup.setVisible(false);
+					popup.dispose();
+
+				}
+			}
+		});
+
+		tf_eno.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				if (!(e.getKeyChar() >= 48 && e.getKeyChar() <= 57)) {
+					e.consume();
+				}
+			}
+
+		});
+
+		bt_popup_ok.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					if (tf_eno.getText().equals("") || tf_ename.getText().equals("") || tf_etel.getText().equals("")) {
+						p_popup_center.removeAll();
+						p_popup_center.setLayout(new BorderLayout());
+						Label lb_waring = new Label("정보를 정확하게 입력해주세요!", Label.CENTER);
+						lb_waring.setFont(font_1);
+						p_popup_center.add(lb_waring);
+						popup.validate();
+
+						Thread.sleep(1500);
+						p_popup_center.removeAll();
+						p_popup_center.setLayout(new GridLayout(3, 2));
+						p_popup_center.add(lb_eno);
+						p_popup_center.add(tf_eno);
+						p_popup_center.add(lb_ename);
+						p_popup_center.add(tf_ename);
+						p_popup_center.add(lb_etel);
+						p_popup_center.add(tf_etel);
+
+					} else {
+						String eid = "";
+						Boolean hasid = false;
+						sql = "select * from employee where eno=? and ename=? and etel=?";
+
+						PreparedStatement ps = conn.prepareStatement(sql);
+						ps.setInt(1, Integer.parseInt(tf_eno.getText()));
+						ps.setString(2, tf_ename.getText());
+						ps.setString(3, tf_etel.getText());
+
+						ResultSet rs = ps.executeQuery();
+
+						while (rs.next()) {
+							eid = rs.getString("eid");
+							hasid = true;
+						}
+
+						p_popup_center.removeAll();
+						p_popup_center.setLayout(new BorderLayout());
+						if (hasid) {
+							Label lb_addguest = new Label("찾은 ID : " + eid, Label.CENTER);
+							lb_addguest.setFont(font_1);
+							p_popup_center.add(lb_addguest);
+						} else {
+							Label lb_addguest = new Label("입력하신 정보의 ID가 없습니다.", Label.CENTER);
+							lb_addguest.setFont(font_1);
+							p_popup_center.add(lb_addguest);
+						}
+
+						p_popup_south.remove(bt_popup_ok);
+						bt_popup_cancle.setLabel("확인");
+						popup.validate();
+
+					}
+
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+
+			}
+		});
+		bt_popup_cancle.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				popup.setVisible(false);
+				popup.dispose();
+
+			}
+		});
+
+		popup.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				popup.setVisible(false);
+				popup.dispose();
+			}
+		});
 	}
-	
-	public static String emptySet(String text,int length) {
-		
-		StringBuffer empty_s=new StringBuffer();
-		StringBuffer result=new StringBuffer();
-		length-=text.length()*2;
-		for(int i=0;i<length;i++) {
-			empty_s.append(" ");
+
+	// 비밀번호 찾기 팝업
+	public void findPwd(Connection conn) {
+		if (popup != null && popup.isVisible()) {
+			return;
 		}
-		if(text.length()<4) {
-		empty_s.deleteCharAt(0);
+
+		Font font_1 = new Font("Default Font", Font.BOLD, 15);
+		Font font_2 = new Font("Default Font", Font.BOLD, 12);
+
+		popup = new Dialog(frame, "비밀번호 찾기") {
+			@Override
+			public Insets getInsets() {
+				return new Insets(40, 20, 15, 20);
+			}
+		};
+		popup.setSize(300, 170);
+		popup.setLayout(new BorderLayout());
+
+		Panel p_popup_center = new Panel(new GridLayout(4, 2));
+		Label lb_eid = new Label("직원 ID");
+		lb_eid.setFont(font_2);
+		TextField tf_eid = new TextField();
+		Label lb_eno = new Label("직원 번호");
+		lb_eno.setFont(font_2);
+		TextField tf_eno = new TextField();
+		Label lb_ename = new Label("직원 이름");
+		lb_ename.setFont(font_2);
+		TextField tf_ename = new TextField();
+		Label lb_etel = new Label("직원 전화번호");
+		lb_etel.setFont(font_2);
+		TextField tf_etel = new TextField();
+
+		popup.add(p_popup_center, "Center");
+		p_popup_center.add(lb_eid);
+		p_popup_center.add(tf_eid);
+		p_popup_center.add(lb_eno);
+		p_popup_center.add(tf_eno);
+		p_popup_center.add(lb_ename);
+		p_popup_center.add(tf_ename);
+		p_popup_center.add(lb_etel);
+		p_popup_center.add(tf_etel);
+
+		Panel p_popup_south = new Panel(new FlowLayout());
+		popup.add(p_popup_south, "South");
+		Button bt_popup_ok = new Button("찾기");
+		bt_popup_ok.setPreferredSize(new Dimension(100, 20));
+		bt_popup_ok.setFont(font_2);
+
+		Button bt_popup_cancle = new Button("취소");
+		bt_popup_cancle.setPreferredSize(new Dimension(100, 20));
+		bt_popup_cancle.setFont(font_2);
+
+		p_popup_south.add(bt_popup_ok);
+		p_popup_south.add(bt_popup_cancle);
+		popup.setVisible(true);
+		popup.setLocationRelativeTo(frame);
+
+		popup.setFocusable(true);
+
+		popup.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+
+					popup.setVisible(false);
+					popup.dispose();
+
+				}
+			}
+		});
+
+		tf_eno.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				if (!(e.getKeyChar() >= 48 && e.getKeyChar() <= 57)) {
+					e.consume();
+				}
+			}
+
+		});
+
+		bt_popup_ok.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					if (tf_eno.getText().equals("") || tf_ename.getText().equals("") || tf_etel.getText().equals("")) {
+						p_popup_center.removeAll();
+						p_popup_center.setLayout(new BorderLayout());
+						Label lb_waring = new Label("정보를 정확하게 입력해주세요!", Label.CENTER);
+						lb_waring.setFont(font_1);
+						p_popup_center.add(lb_waring);
+						popup.validate();
+
+						Thread.sleep(1500);
+						p_popup_center.removeAll();
+						p_popup_center.setLayout(new GridLayout(4, 2));
+						p_popup_center.add(lb_eid);
+						p_popup_center.add(tf_eid);
+						p_popup_center.add(lb_eno);
+						p_popup_center.add(tf_eno);
+						p_popup_center.add(lb_ename);
+						p_popup_center.add(tf_ename);
+						p_popup_center.add(lb_etel);
+						p_popup_center.add(tf_etel);
+
+					} else {
+						String epwd = "";
+						Boolean haspwd = false;
+						sql = "select * from employee where eid=? and eno=? and ename=? and etel=?";
+
+						PreparedStatement ps = conn.prepareStatement(sql);
+						ps.setString(1, tf_eid.getText());
+						ps.setInt(2, Integer.parseInt(tf_eno.getText()));
+						ps.setString(3, tf_ename.getText());
+						ps.setString(4, tf_etel.getText());
+
+						ResultSet rs = ps.executeQuery();
+
+						while (rs.next()) {
+							epwd = rs.getString("epwd");
+							haspwd = true;
+						}
+
+						p_popup_center.removeAll();
+						p_popup_center.setLayout(new BorderLayout());
+						if (haspwd) {
+							Label lb_addguest = new Label("찾은 비밀번호 : " + epwd, Label.CENTER);
+							lb_addguest.setFont(font_1);
+							p_popup_center.add(lb_addguest);
+						} else {
+							Label lb_addguest = new Label("입력하신 정보의 ID가 없습니다.", Label.CENTER);
+							lb_addguest.setFont(font_1);
+							p_popup_center.add(lb_addguest);
+						}
+
+						p_popup_south.remove(bt_popup_ok);
+						bt_popup_cancle.setLabel("확인");
+						popup.validate();
+
+					}
+
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+
+			}
+		});
+		bt_popup_cancle.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				popup.setVisible(false);
+				popup.dispose();
+
+			}
+		});
+
+		popup.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				popup.setVisible(false);
+				popup.dispose();
+			}
+		});
+	}
+
+	// 모든 직원 급여 지급
+	public void allSalary(int bank_to_money, int bmoney, Connection conn, CafePosSystem_bank cpsb) {
+		if (popup != null && popup.isVisible()) {
+			return;
+		}
+
+		Font font_1 = new Font("Default Font", Font.BOLD, 15);
+		Font font_2 = new Font("Default Font", Font.BOLD, 12);
+
+		popup = new Dialog(frame, "모든직원 급여 지급") {
+			@Override
+			public Insets getInsets() {
+				return new Insets(40, 0, 15, 0);
+			}
+		};
+		popup.setSize(300, 150);
+		popup.setLayout(new BorderLayout());
+
+		Panel p_popup_center = new Panel(new GridLayout(4, 1));
+
+		Label lb_popup_pop1 = new Label("정말 모든 급여를 지급하겠습니까?", Label.CENTER);
+		Label lb_popup_pop2 = new Label("지급 예정 금액 : " + money_format.format(-bmoney) + "원", Label.CENTER);
+		Label lb_popup_pop3 = new Label();
+		lb_popup_pop1.setFont(font_1);
+		lb_popup_pop2.setFont(font_1);
+
+		popup.add(p_popup_center, "Center");
+
+		p_popup_center.add(lb_popup_pop3);
+		p_popup_center.add(lb_popup_pop1);
+		p_popup_center.add(lb_popup_pop2);
+		lb_popup_pop3 = new Label();
+		p_popup_center.add(lb_popup_pop3);
+
+		Panel p_popup_south = new Panel(new FlowLayout());
+		popup.add(p_popup_south, "South");
+		Button bt_popup_ok = new Button("지급");
+		bt_popup_ok.setPreferredSize(new Dimension(100, 20));
+		bt_popup_ok.setFont(font_2);
+
+		Button bt_popup_cancle = new Button("취소");
+		bt_popup_cancle.setPreferredSize(new Dimension(100, 20));
+		bt_popup_cancle.setFont(font_2);
+
+		p_popup_south.add(bt_popup_ok);
+		p_popup_south.add(bt_popup_cancle);
+		popup.setVisible(true);
+		popup.setLocationRelativeTo(frame);
+
+		popup.setFocusable(true);
+		popup.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+
+					popup.setVisible(false);
+					popup.dispose();
+
+				}
+			}
+		});
+
+		bt_popup_ok.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					Calendar now = Calendar.getInstance();
+					java.sql.Timestamp jst = new java.sql.Timestamp(now.getTimeInMillis());
+
+					
+					sql = "update bank set money=?";
+					PreparedStatement ps = conn.prepareStatement(sql);
+					ps.setInt(1, bank_to_money);
+					ps.executeUpdate();
+
+					sql = "insert into banking values(sq_banking_bno.nextval,?,?,?,?)";
+					ps = conn.prepareStatement(sql);
+					ps.setString(1, "전체직원 급여");
+					ps.setInt(2, bmoney);
+					ps.setInt(3, bank_to_money);
+					ps.setTimestamp(4, jst);
+
+					popup.setVisible(false);
+					popup.dispose();
+
+					ps.execute();
+					ps.close();
+					showPopUp("출금 완료", "출금 완료하였습니다.", "현재 잔고 : " + money_format.format(bank_to_money) + "원");
+					cpsb.setBankList();
+
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+
+		bt_popup_cancle.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				popup.setVisible(false);
+				popup.dispose();
+
+			}
+		});
+
+		popup.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				popup.setVisible(false);
+				popup.dispose();
+			}
+		});
+
+	}
+
+	public static String emptySet_Kor(String text, int length) {
+
+		StringBuffer empty_s = new StringBuffer();
+		StringBuffer result = new StringBuffer();
+		length -= text.length() * 3;
+		for (int i = 0; i < length; i++) {
+			empty_s.append(" ");
 		}
 		result.append(text);
 		result.append(empty_s.toString());
-		
-		
+
 		return result.toString();
 	}
-	
+
+	public static String emptySet(String text, int length) {
+
+		StringBuffer empty_s = new StringBuffer();
+		StringBuffer result = new StringBuffer();
+		length -= text.length() * 2;
+		for (int i = 0; i < length; i++) {
+			empty_s.append(" ");
+		}
+		if (text.length() < 4) {
+			empty_s.deleteCharAt(0);
+		}
+		result.append(text);
+		result.append(empty_s.toString());
+
+		return result.toString();
+	}
+
 }
