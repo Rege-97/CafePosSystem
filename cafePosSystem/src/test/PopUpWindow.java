@@ -251,6 +251,9 @@ public class PopUpWindow {
 
 		Font font_1 = new Font("Default Font", Font.BOLD, 15);
 		Font font_2 = new Font("Default Font", Font.BOLD, 12);
+		Panel p_popup_center_south=new Panel(new BorderLayout());
+		Label lb_bankmoney = new Label("금고 금액", Label.CENTER);
+		TextField tf_bankmoney = new TextField();
 
 		popup = new Dialog(frame, title) {
 			@Override
@@ -261,7 +264,11 @@ public class PopUpWindow {
 		popup.setSize(300, 150);
 		popup.setLayout(new BorderLayout());
 
-		Panel p_popup_center = new Panel(new GridLayout(4, 1));
+		Panel p_popup_center = new Panel(new GridLayout(4, 1)){
+			public Insets getInsets() {
+				return new Insets(0, 50, 0, 50); // 상, 좌, 하, 우 여백 설정
+			}
+		};
 
 		Label lb_popup_pop1 = new Label(title, Label.CENTER);
 		Label lb_popup_pop2 = new Label("정말 초기화 하시겠습니까?", Label.CENTER);
@@ -271,11 +278,22 @@ public class PopUpWindow {
 
 		popup.add(p_popup_center, "Center");
 
-		p_popup_center.add(lb_popup_pop3);
-		p_popup_center.add(lb_popup_pop1);
-		p_popup_center.add(lb_popup_pop2);
-		lb_popup_pop3 = new Label();
-		p_popup_center.add(lb_popup_pop3);
+	
+		if (table.equals("sale") || table.equals("all")) {
+			p_popup_center.setLayout(new GridLayout(3,1));
+			p_popup_center.add(lb_popup_pop1);
+			p_popup_center.add(lb_popup_pop2);
+			p_popup_center.add(p_popup_center_south);
+			p_popup_center_south.add(lb_bankmoney, "West");
+			p_popup_center_south.add(tf_bankmoney, "Center");
+
+		} else {
+			p_popup_center.add(lb_popup_pop3);
+			p_popup_center.add(lb_popup_pop1);
+			p_popup_center.add(lb_popup_pop2);
+			lb_popup_pop3 = new Label();
+			p_popup_center.add(lb_popup_pop3);
+		}
 
 		Panel p_popup_south = new Panel(new FlowLayout());
 		popup.add(p_popup_south, "South");
@@ -304,6 +322,14 @@ public class PopUpWindow {
 				}
 			}
 		});
+		tf_bankmoney.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				if (!(e.getKeyChar() >= 48 && e.getKeyChar() <= 57)) {
+					e.consume();
+				}
+			}
+		});
 
 		bt_popup_ok.addActionListener(new ActionListener() {
 
@@ -326,6 +352,11 @@ public class PopUpWindow {
 						ps = conn.prepareStatement(sql);
 						ps.execute();
 						ps.close();
+						mf.remove(mf.p_center);
+						mf.remove(mf.mbar);
+						mf.remove(mf.p_north);
+						mf.login();
+						mf.validate();
 
 					} else if (table.equals("menu")) {
 						sql = "delete menu";
@@ -338,11 +369,16 @@ public class PopUpWindow {
 						ps = conn.prepareStatement(sql);
 						ps.execute();
 						ps.close();
+						mf.remove(mf.p_center);
+						mf.remove(mf.mbar);
+						mf.remove(mf.p_north);
+						mf.login();
+						mf.validate();
 					} else if (table.equals("emp")) {
 						sql = "delete employee";
 						ps = conn.prepareStatement(sql);
 						ps.execute();
-						sql = "insert into employee values(0,'김채현','BOSS','010-1234-5678','admin','1234')";
+						sql = "insert into employee values(0,'김채현','BOSS','010-1234-5678','admin','1234',0)";
 						ps = conn.prepareStatement(sql);
 						ps.execute();
 						sql = "drop sequence sq_employee_eno";
@@ -352,7 +388,18 @@ public class PopUpWindow {
 						ps = conn.prepareStatement(sql);
 						ps.execute();
 						ps.close();
+						mf.remove(mf.p_center);
+						mf.remove(mf.mbar);
+						mf.remove(mf.p_north);
+						mf.login();
+						mf.validate();
 					} else if (table.equals("sale")) {
+						if(tf_bankmoney.getText().equals("")) {
+							tf_bankmoney.setText("금액을 입력하세요.");
+							Thread.sleep(1000);
+							tf_bankmoney.setText("");
+						}else {
+						
 						sql = "delete sales";
 						ps = conn.prepareStatement(sql);
 						ps.execute();
@@ -362,8 +409,46 @@ public class PopUpWindow {
 						sql = "create sequence sq_sales_ono";
 						ps = conn.prepareStatement(sql);
 						ps.execute();
+						sql = "delete bank";
+						ps = conn.prepareStatement(sql);
+						ps.execute();
+						sql = "delete banking";
+						ps = conn.prepareStatement(sql);
+						ps.execute();
+						sql = "drop sequence sq_banking_bno";
+						ps = conn.prepareStatement(sql);
+						ps.execute();
+						sql = "create sequence sq_banking_bno";
+						ps = conn.prepareStatement(sql);
+						ps.execute();
+						
+						sql="insert into bank values(?)";
+						ps = conn.prepareStatement(sql);
+						ps.setInt(1, Integer.parseInt(tf_bankmoney.getText()));
+						ps.execute();
+						
+						Calendar now = Calendar.getInstance();
+						java.sql.Timestamp jst = new java.sql.Timestamp(now.getTimeInMillis());
+						sql="insert into banking values(0,'초기자금',?,?,?)";
+						ps = conn.prepareStatement(sql);
+						ps.setInt(1, Integer.parseInt(tf_bankmoney.getText()));
+						ps.setInt(2, Integer.parseInt(tf_bankmoney.getText()));
+						ps.setTimestamp(3,jst);
+						ps.execute();
+	
 						ps.close();
+						mf.remove(mf.p_center);
+						mf.remove(mf.mbar);
+						mf.remove(mf.p_north);
+						mf.login();
+						mf.validate();
+						}
 					} else if (table.equals("all")) {
+						if(tf_bankmoney.getText().equals("")) {
+							tf_bankmoney.setText("금액을 입력하세요.");
+							Thread.sleep(1000);
+							tf_bankmoney.setText("");
+						}else {
 						sql = "delete guest";
 						ps = conn.prepareStatement(sql);
 						ps.execute();
@@ -390,7 +475,7 @@ public class PopUpWindow {
 						sql = "delete employee";
 						ps = conn.prepareStatement(sql);
 						ps.execute();
-						sql = "insert into employee values(0,'김채현','BOSS','010-1234-5678','admin','1234')";
+						sql = "insert into employee values(0,'김채현','BOSS','010-1234-5678','admin','1234',0)";
 						ps = conn.prepareStatement(sql);
 						ps.execute();
 						sql = "drop sequence sq_employee_eno";
@@ -409,7 +494,42 @@ public class PopUpWindow {
 						sql = "create sequence sq_sales_ono";
 						ps = conn.prepareStatement(sql);
 						ps.execute();
+						sql = "delete bank";
+						ps = conn.prepareStatement(sql);
+						ps.execute();
+						sql = "delete banking";
+						ps = conn.prepareStatement(sql);
+						ps.execute();
+						sql = "drop sequence sq_banking_bno";
+						ps = conn.prepareStatement(sql);
+						ps.execute();
+						sql = "create sequence sq_banking_bno";
+						ps = conn.prepareStatement(sql);
+						ps.execute();
+						
+						sql="insert into bank values(?)";
+						ps = conn.prepareStatement(sql);
+						ps.setInt(1, Integer.parseInt(tf_bankmoney.getText()));
+						ps.execute();
+						
+						Calendar now = Calendar.getInstance();
+						java.sql.Timestamp jst = new java.sql.Timestamp(now.getTimeInMillis());
+						sql="insert into banking values(0,'초기자금',?,?,?)";
+						ps = conn.prepareStatement(sql);
+						ps.setInt(1, Integer.parseInt(tf_bankmoney.getText()));
+						ps.setInt(2, Integer.parseInt(tf_bankmoney.getText()));
+						ps.setTimestamp(3,jst);
+						ps.execute();
+						ps.close();
+						
+						mf.remove(mf.p_center);
+						mf.remove(mf.mbar);
+						mf.remove(mf.p_north);
+						mf.login();
+						mf.validate();
 
+						
+						}
 					}
 
 					popup.setVisible(false);
@@ -1360,7 +1480,6 @@ public class PopUpWindow {
 					Calendar now = Calendar.getInstance();
 					java.sql.Timestamp jst = new java.sql.Timestamp(now.getTimeInMillis());
 
-					
 					sql = "update bank set money=?";
 					PreparedStatement ps = conn.prepareStatement(sql);
 					ps.setInt(1, bank_to_money);
@@ -1407,6 +1526,112 @@ public class PopUpWindow {
 
 	}
 
+	// 게임 결과 표시
+	public void gamePopUp(int bank_to_money, int bmoney, int eno, String ename, Connection conn,
+			CafePosSystem_bank cpsb) {
+		if (popup != null && popup.isVisible()) {
+			return;
+		}
+
+		Font font_1 = new Font("Default Font", Font.BOLD, 15);
+		Font font_2 = new Font("Default Font", Font.BOLD, 12);
+
+		popup = new Dialog(frame, "축하합니다!") {
+			@Override
+			public Insets getInsets() {
+				return new Insets(40, 0, 15, 0);
+			}
+		};
+		popup.setSize(300, 150);
+		popup.setLayout(new BorderLayout());
+
+		Panel p_popup_center = new Panel(new GridLayout(4, 1));
+
+		Label lb_popup_pop1 = new Label("당첨자 : " + eno + "번 " + ename, Label.CENTER);
+		Label lb_popup_pop2 = new Label("지급 예정 금액 : " + money_format.format(-bmoney) + "원", Label.CENTER);
+		Label lb_popup_pop3 = new Label();
+		lb_popup_pop1.setFont(font_1);
+		lb_popup_pop2.setFont(font_1);
+
+		popup.add(p_popup_center, "Center");
+
+		p_popup_center.add(lb_popup_pop3);
+		p_popup_center.add(lb_popup_pop1);
+		p_popup_center.add(lb_popup_pop2);
+		lb_popup_pop3 = new Label();
+		p_popup_center.add(lb_popup_pop3);
+
+		Panel p_popup_south = new Panel(new FlowLayout());
+		popup.add(p_popup_south, "South");
+		Button bt_popup_ok = new Button("지급");
+		bt_popup_ok.setPreferredSize(new Dimension(100, 20));
+		bt_popup_ok.setFont(font_2);
+
+		p_popup_south.add(bt_popup_ok);
+		popup.setVisible(true);
+		popup.setLocationRelativeTo(frame);
+
+		popup.setFocusable(true);
+		popup.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+
+					popup.setVisible(false);
+					popup.dispose();
+
+				}
+			}
+		});
+
+		bt_popup_ok.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					Calendar now = Calendar.getInstance();
+					java.sql.Timestamp jst = new java.sql.Timestamp(now.getTimeInMillis());
+
+					sql = "update bank set money=?";
+					PreparedStatement ps = conn.prepareStatement(sql);
+					ps.setInt(1, bank_to_money);
+					ps.executeUpdate();
+
+					sql = "insert into banking values(sq_banking_bno.nextval,?,?,?,?)";
+					ps = conn.prepareStatement(sql);
+					ps.setString(1, ename + " 보너스");
+					ps.setInt(2, bmoney);
+					ps.setInt(3, bank_to_money);
+					ps.setTimestamp(4, jst);
+
+					popup.setVisible(false);
+					popup.dispose();
+
+					ps.execute();
+					ps.close();
+					showPopUp("출금 완료", "출금 완료하였습니다.", "현재 잔고 : " + money_format.format(bank_to_money) + "원");
+					cpsb.setBankList();
+					cpsb.lb_gamemain.setText("당첨은 누구?");
+					cpsb.tf_gamemoney.setText("");
+					cpsb.lb_gamemain.setFont(new Font("Default Font", Font.BOLD, 50));
+					cpsb.tf_gamemoney.setEditable(true);
+
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+
+		popup.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				popup.setVisible(false);
+				popup.dispose();
+			}
+		});
+
+	}
+	// 공백생성(한글)
 	public static String emptySet_Kor(String text, int length) {
 
 		StringBuffer empty_s = new StringBuffer();
@@ -1420,7 +1645,7 @@ public class PopUpWindow {
 
 		return result.toString();
 	}
-
+	// 공백생성
 	public static String emptySet(String text, int length) {
 
 		StringBuffer empty_s = new StringBuffer();

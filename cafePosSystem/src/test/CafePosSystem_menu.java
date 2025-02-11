@@ -26,29 +26,9 @@ public class CafePosSystem_menu extends Panel{
 	CheckboxGroup cbg_menugroup;
     Checkbox cbg_mno, cbg_mname;
     
-	int gusno;
-	String gusname;
-	int guspoint;
-	String gustel;
-	String rname;
-	double rpoint;
 	int mno;
 	String mname;
 	int mprice;
-	int ono;
-	String odate;
-	int opoint;
-	int ocash;
-	int ocount;
-	int eno;
-	String ename;
-	String gname;
-	String etel;
-	String eid;
-	String epwd;
-	String gsal;
-	int money;
-	int gussale;
 	
 	/**메뉴관리**/
 	public CafePosSystem_menu(Frame frame, Connection conn) {
@@ -81,6 +61,7 @@ public class CafePosSystem_menu extends Panel{
 		Label lb_title = new Label("메뉴",Label.CENTER);
 		lb_title.setFont(f_title);
 		js = new JSeparator();
+		js.setForeground(Color.pink);
 		
 		p_north.add(lb_title,"North");
 		p_north.add(js,"Center");
@@ -140,6 +121,7 @@ public class CafePosSystem_menu extends Panel{
 		
 		js = new JSeparator();
 		p_south_north.add(js,"North");
+		js.setForeground(Color.pink);
 		
 		Label lb_menuenroll = new Label("메뉴 등록", Label.CENTER);
 		p_south_north.add(lb_menuenroll,"South");

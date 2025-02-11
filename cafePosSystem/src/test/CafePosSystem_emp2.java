@@ -8,20 +8,19 @@ import java.sql.*;
 
 import java.util.StringTokenizer;
 
-public class CafePosSystem_emp extends Panel {
+public class CafePosSystem_emp2 extends   Panel {
 
    Font f_title, f_subtitle;
    Panel p_north, p_north_south, p_center, p_center_west, p_center_east, p_center_east_center, p_center_east_south,
-         p_south, p_south_north, p_south_center, p_south_south;
+         p_south, p_south_north;
    Label lb_title, lb_searchEmp, lb_viewList, lb_empInfo, lb_viewNo, lb_viewName, lb_viewTel, lb_viewGrade, lb_viewId,
-         lb_viewPwd, lb_addEmp, lb_addNo, lb_addName, lb_addTel, lb_addGrade, lb_addId, lb_addPwd;
+         lb_viewPwd;
    JSeparator js, js2;
    Checkbox cb_searchName, cb_searchGname, cb_searchTel, cb_searchId;
    CheckboxGroup cbg_searchEmp;
-   TextField tf_searchEmp, tf_viewNo, tf_viewName, tf_viewTel, tf_viewId, tf_viewPwd, tf_addNo, tf_addName, tf_addTel,
-         tf_addId, tf_addPwd;
-   Button bt_searchEmp, bt_searchEmpAll, bt_changeInfo, bt_deleteInfo, bt_showPwd, bt_addInfo, bt_reset;
-   Choice c_viewGrade,c_addGrade;
+   TextField tf_searchEmp, tf_viewNo, tf_viewName, tf_viewTel, tf_viewId, tf_viewPwd ;
+   Button bt_searchEmp, bt_searchEmpAll;
+   Choice c_viewGrade;
    List li_viewList;
    boolean sw;
    
@@ -54,7 +53,7 @@ public class CafePosSystem_emp extends Panel {
    Frame frame;
    PopUpWindow puw = new PopUpWindow(frame);
    
-   public CafePosSystem_emp(Frame frame, Connection conn) {
+   public CafePosSystem_emp2(Frame frame, Connection conn) {
       this.conn=conn;
       this.frame=frame;
       page();
@@ -233,17 +232,7 @@ public class CafePosSystem_emp extends Panel {
          e1.printStackTrace();
       }
    }
-   //직원 등록 텍스트 필드 초기화(메서드ver)
-   public void reset3() {
-         try {
-            tf_addName.setText("");
-            tf_addTel.setText("");
-            tf_addId.setText("");
-            tf_addPwd.setText("");
-         } catch (Exception e1) {
-            e1.printStackTrace();
-         }
-      }
+
 
    //GUI셋팅(메서드ver)
    public void page() {
@@ -251,7 +240,8 @@ public class CafePosSystem_emp extends Panel {
          // 전체 레이아웃
          // 패널 생성과 동시에 레이아웃 셋팅
          this.setLayout(new BorderLayout(0, 20));
-         // 프레임위에 패널 덧붙이기
+         
+          // 프레임위에 패널 덧붙이기
 
          f_title = new Font("Default Font", Font.BOLD, 15);
          f_subtitle = new Font("Default Font", Font.BOLD, 12);
@@ -325,7 +315,7 @@ public class CafePosSystem_emp extends Panel {
          lb_empInfo.setFont(f_subtitle);
          p_center_east.add(lb_empInfo, "North");
          // 패널 생성과 동시에 레이아웃 셋팅
-         p_center_east_center = new Panel(new GridLayout(6, 2, 0, 0));
+         p_center_east_center = new Panel(new GridLayout(8, 2, 0, 0));
          // p_center_east_center패널을 p_center_east 패널의 센터에 붙이기
          p_center_east.add(p_center_east_center, "Center");
          // 라벨과 텍스트 필드 생성후 p_center_east_center패널에 라벨과 텍스트필드 붙이기
@@ -345,7 +335,11 @@ public class CafePosSystem_emp extends Panel {
          tf_viewId = new TextField(20);
          lb_viewPwd = new Label("비밀번호", Label.CENTER);
          tf_viewPwd = new TextField(20);
-
+         Label lb_temp1=new Label("",Label.CENTER);
+         Label lb_temp2=new Label("",Label.CENTER);
+         Label lb_temp3=new Label("",Label.CENTER);
+         Label lb_temp4=new Label("",Label.CENTER);
+         
          tf_viewNo.setEditable(false);
          tf_viewName.setEditable(false);
          tf_viewTel.setEditable(false);
@@ -366,6 +360,10 @@ public class CafePosSystem_emp extends Panel {
          p_center_east_center.add(tf_viewId);
          p_center_east_center.add(lb_viewPwd);
          p_center_east_center.add(tf_viewPwd);
+         p_center_east_center.add(lb_temp1);
+         p_center_east_center.add(lb_temp2);
+         p_center_east_center.add(lb_temp3);
+         p_center_east_center.add(lb_temp4);
         
 
          // 패널 생성과 동시에 레이아웃 셋팅
@@ -373,19 +371,13 @@ public class CafePosSystem_emp extends Panel {
          // p_center_east_south 패널을 p_center_east패널의 남쪽에 붙이기
          p_center_east.add(p_center_east_south, "South");
          // 버튼 생성후 p_center_east_south 패널에 버튼 붙이기
-         bt_changeInfo = new Button("   수정   ");
-         bt_deleteInfo = new Button("   삭제   ");
-         bt_showPwd = new Button("   비밀번호확인   ");
-         // 컴포넌트 나란히 놓기
-         p_center_east_south.add(bt_changeInfo);
-         p_center_east_south.add(bt_deleteInfo);
-         p_center_east_south.add(bt_showPwd);
+
 
          /////////////////////////////
          ///////////// 하단/////////////
          /////////////////////////////
 
-         // 패널 생성과 동시에 레이아웃 셋팅
+//         // 패널 생성과 동시에 레이아웃 셋팅
          p_south = new Panel(new BorderLayout(10, 10));
          this.add(p_south, "South");
          // 라벨 생성후 라벨을 p_south의 북쪽에 붙이기
@@ -395,55 +387,11 @@ public class CafePosSystem_emp extends Panel {
          js2 = new JSeparator();
          js2.setForeground(Color.PINK);
          p_south_north.add(js2, "Center");
-         lb_addEmp = new Label("직원 등록", Label.CENTER);
-         lb_addEmp.setFont(f_subtitle);
-         p_south_north.add(lb_addEmp, "South");
-
-         // 패널 생성과 동시에 레이아웃 셋팅
-         p_south_center = new Panel(new GridLayout(2, 6));
-         p_south.add(p_south_center, "Center");
-         // 라벨과 텍스트 필드 생성
-         lb_addNo = new Label("직원 번호", Label.CENTER);
-         tf_addNo = new TextField(20);
-         lb_addName = new Label("직원 이름", Label.CENTER);
-         tf_addName = new TextField(20);
-         lb_addTel = new Label("직원 전화번호", Label.CENTER);
-         tf_addTel = new TextField(20);
-         lb_addGrade = new Label("직원 직급", Label.CENTER);
-         c_addGrade = new Choice();
-         c_addGrade.add("MANAGER");
-         c_addGrade.add("STAFF");
-         c_addGrade.add("ALBAR");
-         lb_addId = new Label("아이디", Label.CENTER);
-         tf_addId = new TextField(20);
-         lb_addPwd = new Label("비밀번호", Label.CENTER);
-         tf_addPwd = new TextField(20);
-
-         tf_addNo.setEditable(false);
-
-         // 라벨,텍스트필드 붙이기
-         p_south_center.add(lb_addNo);
-         p_south_center.add(lb_addName);
-         p_south_center.add(lb_addTel);
-         p_south_center.add(lb_addGrade);
-         p_south_center.add(lb_addId);
-         p_south_center.add(lb_addPwd);
-         p_south_center.add(tf_addNo);
-         p_south_center.add(tf_addName);
-         p_south_center.add(tf_addTel);
-         p_south_center.add(c_addGrade);
-         p_south_center.add(tf_addId);
-         p_south_center.add(tf_addPwd);
-
-         // 패널 생성과 동시에 레이아웃 셋팅
-         p_south_south = new Panel(new FlowLayout(1, 10, 10));
-         p_south.add(p_south_south, "South");
-         // 버튼 생성
-         bt_addInfo = new Button("   등록   ");
-         bt_reset = new Button("   입력 초기화   ");
-
-         p_south_south.add(bt_addInfo);
-         p_south_south.add(bt_reset);
+         Label lb_temp5=new Label("",Label.CENTER);
+         p_south.add(lb_temp5,"Center");
+         Label lb_temp6=new Label("",Label.CENTER);
+         p_south.add(lb_temp6,"South");
+         
          
          // 이벤트
          // 검색
@@ -467,11 +415,11 @@ public class CafePosSystem_emp extends Panel {
             @Override
             public void actionPerformed(ActionEvent e) {
                try {
-                  tf_viewName.setEditable(true);
-                  tf_viewTel.setEditable(true);
-                  c_viewGrade.setEnabled(true);
-                  tf_viewId.setEditable(true);
-                  tf_viewPwd.setEditable(true);
+                  tf_viewName.setEditable(false);
+                  tf_viewTel.setEditable(false);
+                  c_viewGrade.setEnabled(false);
+                  tf_viewId.setEditable(false);
+                  tf_viewPwd.setEditable(false);
                   String empInfo = li_viewList.getSelectedItem();
                   empInfo=empInfo.substring(0,4).trim();
                   sql = "select eno,ename,gname,etel,eid,epwd from employee where eno=?";
@@ -479,27 +427,9 @@ public class CafePosSystem_emp extends Panel {
                   ps.setString(1, empInfo);
                   ResultSet rs = ps.executeQuery();
                   while (rs.next()) {
-                     tf_viewNo.setText(rs.getString("eno"));
-                     if(tf_viewNo.getText().equals("1")) {
-                        c_viewGrade.removeAll();
-                        c_viewGrade.add("BOSS");
-                         c_viewGrade.add("MANAGER");
-                         c_viewGrade.add("STAFF");
-                         c_viewGrade.add("ALBAR");
-                     }else{
-                        c_viewGrade.removeAll();
-                         c_viewGrade.add("MANAGER");
-                         c_viewGrade.add("STAFF");
-                         c_viewGrade.add("ALBAR");
-                     }                     
-                           
+                     tf_viewNo.setText(rs.getString("eno"));                     
                      tf_viewName.setText(rs.getString("ename"));
-                     c_viewGrade.select(rs.getString("gname"));
-                     if(c_viewGrade.getSelectedItem().equals("BOSS")) {
-                        c_viewGrade.setEnabled(false);
-                     }else {
-                       c_viewGrade.setEnabled(true);
-                     }    
+                     c_viewGrade.select(rs.getString("gname"));                        
                      tf_viewTel.setText(rs.getString("etel"));
                      tf_viewId.setText(rs.getString("eid"));
                      tf_viewPwd.setText(rs.getString("epwd"));
@@ -515,147 +445,8 @@ public class CafePosSystem_emp extends Panel {
             }
          });
 
-         // 직원 정보 수정 
-         bt_changeInfo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-               try {
-                  if (!(tf_viewNo.getText().equals("")||tf_viewName.getText().equals("")||tf_viewTel.getText().equals("")
-                     ||tf_viewId.getText().equals("")||tf_viewPwd.getText().equals(""))) {
-                     sql = "update employee set ename=?,etel=?,gname=?,eid=?,epwd=? where eno=?";
-                     PreparedStatement ps = conn.prepareStatement(sql);
-                     ps.setString(1, tf_viewName.getText());
-                     ps.setString(2, tf_viewTel.getText());
-                     ps.setString(3, c_viewGrade.getSelectedItem());
-                     ps.setString(4, tf_viewId.getText());
-                     ps.setString(5, tf_viewPwd.getText());
-                     ps.setString(6, tf_viewNo.getText());
-                     ps.executeUpdate();
-                     ps.close();
-                     reset2();
-                     
-                     puw.showPopUp("안내메세지", "직원정보가","수정되었습니다.");
-                     
-                     if (sw == true) {
-                        searchEmpAll();
-      
-                     } else if (sw == false) {
-                        searchEmp();
-                     }
-                  }else {
-                     puw.showPopUp("안내메세지", "직원을 ", "선택해주세요.");
-                  }
-               } catch (Exception e1) {
-                  e1.printStackTrace();
-               }
-            }
-         });
 
-         // 직원 정보 삭제
-         bt_deleteInfo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-               try {
-                  if (!(tf_viewNo.getText().equals("")||tf_viewName.getText().equals("")||tf_viewTel.getText().equals("")
-                        ||tf_viewId.getText().equals("")||tf_viewPwd.getText().equals(""))) {
-                     if (!(c_viewGrade.getSelectedItem().equals("BOSS"))) {
-                        sql = "delete from employee where eno=? and ename=? and etel=? and gname=? and eid=?";
-                        PreparedStatement ps = conn.prepareStatement(sql);
-                        ps.setString(1, tf_viewNo.getText());
-                        ps.setString(2, tf_viewName.getText());
-                        ps.setString(3, tf_viewTel.getText());
-                        ps.setString(4, c_viewGrade.getSelectedItem());
-                        ps.setString(5, tf_viewId.getText());
-                        ps.executeUpdate();
-                        ps.close();
-                        reset2();
-                        puw.showPopUp("안내메세지", "직원정보가","삭제되었습니다.");
-                        
-                     } else if (c_viewGrade.getSelectedItem().equals("BOSS")) {
-                        puw.showPopUp("안내메세지", "선택하신 직원은 ", "삭제가 불가능합니다.");
-                     }
-                     if (sw == true ) {
-                        searchEmpAll();
-      
-                     } else if (sw == false) {
-                        searchEmp();
-                     }
-                  }else{
-                     
-                     puw.showPopUp("안내메세지", "직원을 ", "선택해주세요.");
-                  } 
-                     
-                  
-               } catch (Exception e1) {
-                  e1.printStackTrace();
-               }
-            }
-         });
-         // 비밀번호 확인
-         bt_showPwd.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-               try {
-                  if (!(tf_viewNo.getText().equals("")||tf_viewName.getText().equals("")||tf_viewTel.getText().equals("")
-                           ||tf_viewId.getText().equals("")||tf_viewPwd.getText().equals(""))) {
-                     sql = "select epwd from employee where eno=?";
-                     PreparedStatement ps = conn.prepareStatement(sql);
-                     ps.setString(1, tf_viewNo.getText());
-                     ResultSet rs = ps.executeQuery();
-                     while (rs.next()) {             
-                        tf_viewPwd.setText(rs.getString("epwd"));
-                        tf_viewPwd.setEchoChar((char)0);
-                     }
-                     rs.close();
-                     ps.close();
-                  }else if (c_viewGrade.getSelectedItem().equals("BOSS")) {
-                           puw.showPopUp("안내메세지", "직원을", "선택해주세요.");
-                  }
-               } catch (Exception e1) {
-                  e1.printStackTrace();
-               }
-            }
-         });
-
-         // 직원 정보 등록
-         bt_addInfo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-               try {
-                  if (!(tf_addName.getText().equals("") || tf_addTel.getText().equals("")
-                        || tf_addId.getText().equals("") || tf_addPwd.getText().equals(""))) {
-                     sql = "insert into employee(eno,ename,etel,gname,eid,epwd) values(sq_employee_eno.nextval,?,?,?,?,?)";
-                     PreparedStatement ps = conn.prepareStatement(sql);
-                     ps.setString(1, tf_addName.getText());
-                     ps.setString(2, tf_addTel.getText());
-                     ps.setString(3, c_addGrade.getSelectedItem());
-                     ps.setString(4, (tf_addId.getText()));
-                     ps.setString(5, tf_addPwd.getText());
-                     ps.executeUpdate();
-                     ps.close();
-                     reset3();
-                     
-                     puw.showPopUp("안내메세지", "직원정보가 ", "등록되었습니다.");
-                     searchEmpAll();
-                  } else {
-               
-                     puw.showPopUp("안내메세지", "직원정보를 ", "입력해주세요.");
-                  }
-               } catch (Exception e1) {
-                  e1.printStackTrace();
-               }
-            }
-         });
-
-         // 입력 초기화
-         bt_reset.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-               reset();
-            }
-         });
-        
-         //체크박스 다른거 선택시 검색창 초기화
+//       //체크박스 다른거 선택시 검색창 초기화
 
 
          cb_searchName.addItemListener(new ItemListener() {

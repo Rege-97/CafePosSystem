@@ -18,7 +18,7 @@ public class MainFrame extends Frame implements ActionListener {
 	MenuItem mi_reset_guest, mi_reset_menu, mi_reset_emp, mi_reset_sale, mi_reset_all;
 
 	Panel p_north, p_center;
-	Button bt_pay, bt_guest, bt_menu, bt_emp, bt_sale,bt_bank;
+	Button bt_pay, bt_guest, bt_menu, bt_emp, bt_sale, bt_bank;
 	Font f_title, f_subtitle, f_menu, f_cat;
 
 	Panel p_center_center, p_center_center_center, p_center_center_south, p_center_north, p_center_north_south,
@@ -58,6 +58,7 @@ public class MainFrame extends Frame implements ActionListener {
 
 			gname = "";
 
+
 			login();
 
 			this.validate();
@@ -76,6 +77,7 @@ public class MainFrame extends Frame implements ActionListener {
 
 	}
 
+	// 로그인 레이아웃
 	public void login() {
 		// 메뉴바 세팅
 		mbar = new MenuBar();
@@ -89,11 +91,10 @@ public class MainFrame extends Frame implements ActionListener {
 		mbar.add(m_file);
 		m_file.add(mi_close);
 
-		///////////// 메인/////////////
+		// 메인
 		p_center = new Panel(new BorderLayout());
 		this.add(p_center);
-		///////////// 상단/////////////
-		///
+		// 상단
 		p_center_north = new Panel(new BorderLayout()) {
 			public Insets getInsets() {
 				return new Insets(130, 0, 20, 0); // 상, 좌, 하, 우 여백 설정
@@ -124,10 +125,8 @@ public class MainFrame extends Frame implements ActionListener {
 		p_center_north_south.add(lb_editer3);
 		p_center_north_south.add(lb_editer4);
 		p_center_north_south.add(lb_editer5);
-
-		///////////// 중단/////////////
-		///
-		///
+		
+		// 하단
 
 		p_center_center = new Panel(new BorderLayout(10, 10)) {
 			public Insets getInsets() {
@@ -177,6 +176,7 @@ public class MainFrame extends Frame implements ActionListener {
 		p_center_center_center.add(bt_findpwd);
 		boolean hasauto = false;
 
+		// 저장된 ID 체크
 		try {
 			sql = "select * from employee where eauto = 1";
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -203,6 +203,7 @@ public class MainFrame extends Frame implements ActionListener {
 		this.setFocusable(true);
 
 		this.addKeyListener(new KeyAdapter() {
+			// 엔터로 로그인
 			@Override
 			public void keyPressed(KeyEvent e) {
 				try {
@@ -217,7 +218,7 @@ public class MainFrame extends Frame implements ActionListener {
 		});
 
 		cb_checkpwd.addItemListener(new ItemListener() {
-
+			// 비밀번호 확인
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (cb_checkpwd.getState()) {
@@ -230,7 +231,7 @@ public class MainFrame extends Frame implements ActionListener {
 		});
 
 		tf_id.addKeyListener(new KeyAdapter() {
-
+			// 엔터로 로그인
 			@Override
 			public void keyPressed(KeyEvent e) {
 				try {
@@ -242,8 +243,9 @@ public class MainFrame extends Frame implements ActionListener {
 				}
 			}
 		});
+		
 		tf_pwd.addKeyListener(new KeyAdapter() {
-
+			// 엔터로 로그인
 			@Override
 			public void keyPressed(KeyEvent e) {
 				try {
@@ -320,8 +322,11 @@ public class MainFrame extends Frame implements ActionListener {
 		p_north.add(bt_menu);
 		p_north.add(bt_emp);
 		p_north.add(bt_sale);
-		p_north.add(bt_bank);
-
+		
+		// 관리자가 로그인할 시 은행 기능 사용 가능
+		if (gname.equals("BOSS")) {
+			p_north.add(bt_bank);
+		}
 		// 파일 메뉴
 		mi_logout.addActionListener(this);
 		mi_close.addActionListener(this);
@@ -405,10 +410,19 @@ public class MainFrame extends Frame implements ActionListener {
 				this.validate();
 
 			} else if (ob == bt_emp) {
-				remove(p_center);
-				p_center = new CafePosSystem_emp(this, conn);
-				this.add(p_center, "Center");
-				this.validate();
+				if(gname.equals("BOSS")) {
+					remove(p_center);
+					p_center = new CafePosSystem_emp(this, conn);
+					this.add(p_center, "Center");
+					this.validate();
+				}else {
+					remove(p_center);
+					p_center = new CafePosSystem_emp2(this, conn);
+					this.add(p_center, "Center");
+					this.validate();
+				}
+				
+				
 
 			} else if (ob == bt_sale) {
 				remove(p_center);
@@ -416,7 +430,7 @@ public class MainFrame extends Frame implements ActionListener {
 				this.add(p_center, "Center");
 				this.validate();
 
-			}else if (ob == bt_bank) {
+			} else if (ob == bt_bank) {
 				remove(p_center);
 				p_center = new CafePosSystem_bank(this, conn);
 				this.add(p_center, "Center");
@@ -451,6 +465,7 @@ public class MainFrame extends Frame implements ActionListener {
 			}
 		}
 		if (login) {
+			// ID 저장 체크 후 저장처리
 			if (cb_autoid.getState()) {
 				sql = "update employee set eauto=0";
 
@@ -461,13 +476,13 @@ public class MainFrame extends Frame implements ActionListener {
 				ps = conn.prepareStatement(sql);
 				ps.setString(1, tf_id.getText());
 				ps.execute();
-			}else {
+			} else {
 				sql = "update employee set eauto=0";
 
 				ps = conn.prepareStatement(sql);
 				ps.execute();
 			}
-			
+
 			rs.close();
 			ps.close();
 
