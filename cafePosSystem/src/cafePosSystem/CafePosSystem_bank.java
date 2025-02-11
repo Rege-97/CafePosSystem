@@ -1,4 +1,4 @@
-package test;
+package cafePosSystem;
 
 import java.awt.BorderLayout;
 import java.awt.Button;

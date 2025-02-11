@@ -1,4 +1,4 @@
-package test;
+package cafePosSystem;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;

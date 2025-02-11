@@ -8,14 +8,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.StringTokenizer;
 
 import javax.swing.JSeparator;
 
-public class CafePosSystem_pay extends Frame {
+public class CafePosSystem_pay extends Panel {
 
-	Panel p_main, p_north, p_center, p_center_1, p_center_2, p_center_2_south, p_center_2_south_north,
-			p_center_2_south_south, p_center_3, p_center_3_center, p_center_3_east, p_center_4, p_center_4_north,
-			p_center_4_center, p_center_4_center_south, p_center_4_south, p_south;
+	Panel p_north, p_center, p_center_1, p_center_2, p_center_2_south, p_center_2_south_north, p_center_2_south_south,
+			p_center_3, p_center_3_center, p_center_3_east, p_center_4, p_center_4_north, p_center_4_center,
+			p_center_4_center_south, p_center_4_south, p_south;
 
 	Label title, lb_menu_count, lb_allmoney, lb_usepoint, lb_getmoney, lb_balance, lb_change, lb_guest, lb_gusno,
 			lb_gusname, lb_gusrank, lb_guest_point;
@@ -44,37 +45,17 @@ public class CafePosSystem_pay extends Frame {
 	int mno;
 	String mname;
 	int mprice;
-	int ono;
-	String odate;
-	int opoint;
-	int ocash;
 	int ocount;
-	int eno;
-	String ename;
-	String gname;
-	String etel;
-	String eid;
-	String epwd;
-	String gsal;
-	int money;
 	int gussale;
 
-	static Connection conn;
+	Connection conn;
 	String sql;
 
-	public CafePosSystem_pay() throws Exception {
+	Frame frame;
 
-		this.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				try {
-					conn.close();
-					System.exit(0);
-				} catch (Exception e1) {
-				}
-			}
-		});
-
+	public CafePosSystem_pay(Frame frame, Connection conn) throws Exception {
+		this.conn = conn;
+		this.frame = frame;
 		payLayout();
 	}
 
@@ -93,22 +74,22 @@ public class CafePosSystem_pay extends Frame {
 
 		money_format = new DecimalFormat("#,###");
 		sdf_now = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+		this.setLayout(new BorderLayout(30, 30));
 
-		p_main = new Panel(new BorderLayout(30, 30));
-		this.add(p_main);
 		// 상단
 		p_north = new Panel(new BorderLayout(5, 5));
-		p_main.add(p_north, "North");
-		title = new Label("쌍용 1팀 카페 결제 시스템", Label.CENTER);
+		this.add(p_north, "North");
+		title = new Label("CAFE DMOA POS SYSTEM", Label.CENTER);
 		title.setFont(f_title);
 		p_north.add(title, "North");
 
 		js = new JSeparator();
 		p_north.add(js, "Center");
+		js.setForeground(Color.pink);
 
 		// 중단
 		p_center = new Panel(new GridLayout(2, 2, 30, 30));
-		p_main.add(p_center, "Center");
+		this.add(p_center, "Center");
 
 		// 중단 -1
 		p_center_1 = new Panel(new BorderLayout(10, 10));
@@ -239,7 +220,7 @@ public class CafePosSystem_pay extends Frame {
 		p_center_4_center = new Panel(new BorderLayout());
 		p_center_4.add(p_center_4_center, "Center");
 
-		tf_guest_cat = new TextField(" 번호   회원이름   포인트   전화번호          회원등급   결제금액");
+		tf_guest_cat = new TextField(" 번호   회원이름   포인트    전화번호          회원등급   결제금액");
 		tf_guest_cat.setEditable(false);
 		tf_guest_cat.setFont(f_cat);
 		p_center_4_center.add(tf_guest_cat, "North");
@@ -299,7 +280,7 @@ public class CafePosSystem_pay extends Frame {
 		// 하단
 		p_south = new Panel(new GridLayout(1, 2));
 		p_south.setPreferredSize(new Dimension(740, 40));
-		p_main.add(p_south, "South");
+		this.add(p_south, "South");
 		bt_pay = new Button("결제");
 		bt_pay.setFont(f_title);
 		bt_reset = new Button("입력 초기화");
@@ -308,10 +289,11 @@ public class CafePosSystem_pay extends Frame {
 		p_south.add(bt_reset);
 
 		this.validate();
+
 		// 이벤트
 
-		tf_menu_count.addKeyListener(new KeyListener() {
-
+		tf_menu_count.addKeyListener(new KeyAdapter() {
+			// 숫자 이외의 입력 방지
 			@Override
 			public void keyTyped(KeyEvent e) {
 				if (!(e.getKeyChar() >= 48 && e.getKeyChar() <= 57)) {
@@ -319,12 +301,7 @@ public class CafePosSystem_pay extends Frame {
 				}
 
 			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-
-			}
-
+			// 엔터키 입력 시 메뉴 선택
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -332,29 +309,19 @@ public class CafePosSystem_pay extends Frame {
 				}
 			}
 		});
-		tf_usepoint.addKeyListener(new KeyListener() {
-
+		tf_usepoint.addKeyListener(new KeyAdapter() {
+			// 숫자 이외의 입력 방지
 			@Override
 			public void keyTyped(KeyEvent e) {
 				if (!(e.getKeyChar() >= 48 && e.getKeyChar() <= 57)) {
 					e.consume();
 				}
-
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
 
 			}
 		});
 
-		tf_getmoney.addKeyListener(new KeyListener() {
-
+		tf_getmoney.addKeyListener(new KeyAdapter() {
+			// 숫자 이외의 입력 방지
 			@Override
 			public void keyTyped(KeyEvent e) {
 				if (!(e.getKeyChar() >= 48 && e.getKeyChar() <= 57)) {
@@ -362,12 +329,7 @@ public class CafePosSystem_pay extends Frame {
 				}
 
 			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-
-			}
-
+			// 받은 금액 입력후 엔터키 입력 시 결제
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (!(tf_getmoney.getText().equals("")) && e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -378,7 +340,7 @@ public class CafePosSystem_pay extends Frame {
 		});
 
 		li_menu.addActionListener(new ActionListener() {
-
+			// 메뉴 선택하여 추가
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				selectMenuAdd();
@@ -387,7 +349,7 @@ public class CafePosSystem_pay extends Frame {
 		});
 
 		bt_menu_add.addActionListener(new ActionListener() {
-
+			// 추가 버튼 누를 시 메뉴 추가
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (li_menu.getSelectedIndex() == -1) {
@@ -400,7 +362,7 @@ public class CafePosSystem_pay extends Frame {
 		});
 
 		bt_menu_del.addActionListener(new ActionListener() {
-
+			// 삭제 버튼 누를 시 메뉴 삭제
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (li_selectmenu.getSelectedIndex() == -1) {
@@ -412,7 +374,7 @@ public class CafePosSystem_pay extends Frame {
 		});
 
 		tf_allmoney.addTextListener(new TextListener() {
-
+			// 전체 금액 변경 시 자동계산
 			@Override
 			public void textValueChanged(TextEvent e) {
 				payMoney();
@@ -420,13 +382,15 @@ public class CafePosSystem_pay extends Frame {
 		});
 
 		tf_usepoint.addTextListener(new TextListener() {
-
+			// 회원이 가진 포인트보다 많은 포인트 입력 불가
 			@Override
 			public void textValueChanged(TextEvent e) {
 
 				if (!tf_usepoint.getText().equals("")) {
 					if (Integer.parseInt(tf_usepoint.getText()) > Integer.parseInt(tf_guest_point.getText())) {
+
 						tf_usepoint.setText(tf_guest_point.getText());
+
 					}
 				} else {
 					tf_usepoint.setText("0");
@@ -438,7 +402,7 @@ public class CafePosSystem_pay extends Frame {
 		});
 
 		tf_guest_point.addTextListener(new TextListener() {
-
+			// 회원 선택 시 포인트 자동 입력
 			@Override
 			public void textValueChanged(TextEvent e) {
 
@@ -447,15 +411,22 @@ public class CafePosSystem_pay extends Frame {
 				}
 
 				if (Integer.parseInt(tf_guest_point.getText()) >= 1000) {
-					tf_usepoint.setText(tf_guest_point.getText());
-					tf_usepoint.setEditable(true);
+					if (Integer.parseInt(tf_allmoney.getText().replaceAll(",", "")) < Integer
+							.parseInt(tf_guest_point.getText())) {
+						tf_usepoint.setText(tf_allmoney.getText().replaceAll(",", ""));
+						tf_usepoint.setEditable(true);
+					} else {
+						tf_usepoint.setText(tf_guest_point.getText());
+						tf_usepoint.setEditable(true);
+					}
+
 				}
 
 			}
 		});
 
 		tf_getmoney.addTextListener(new TextListener() {
-
+			// 받은 금액 입력 시 자동 계산
 			@Override
 			public void textValueChanged(TextEvent e) {
 				payMoney();
@@ -463,56 +434,22 @@ public class CafePosSystem_pay extends Frame {
 			}
 		});
 		bt_search.addActionListener(new ActionListener() {
-
+			// 회원 검색
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				searchGuest();
 			}
 		});
 		li_guest.addActionListener(new ActionListener() {
-
+			// 회원 선택
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					if (!li_guest.getSelectedItem().substring(3, 4).equals(" ")
-							&& li_guest.getSelectedItem().substring(4, 5).equals(" ")) {
-						gusno = Integer.parseInt(li_guest.getSelectedItem().substring(1, 4));
-					} else if (!li_guest.getSelectedItem().substring(2, 3).equals(" ")
-							&& li_guest.getSelectedItem().substring(3, 4).equals(" ")) {
-						gusno = Integer.parseInt(li_guest.getSelectedItem().substring(1, 3));
-					} else {
-						gusno = Integer.parseInt(li_guest.getSelectedItem().substring(1, 2));
-					}
-
-					sql = "select * from guest where gusno=?";
-					PreparedStatement ps = conn.prepareStatement(sql);
-					ps.setInt(1, gusno);
-					ResultSet rs = ps.executeQuery();
-
-					while (rs.next()) {
-						gusname = rs.getString("gusname");
-						guspoint = rs.getInt("guspoint");
-						gustel = rs.getString("gustel");
-						rname = rs.getString("rname");
-						gussale = rs.getInt("gussale");
-					}
-
-					tf_gusno.setText(gusno + "");
-					tf_gusname.setText(gusname);
-					tf_gusrank.setText(rname);
-					tf_guest_point.setText(guspoint + "");
-
-					rs.close();
-					ps.close();
-
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
+				guestSelect();
 			}
 		});
 
 		bt_unrank.addActionListener(new ActionListener() {
-
+			// 비회원 전환
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				tf_gusno.setText("0");
@@ -523,7 +460,7 @@ public class CafePosSystem_pay extends Frame {
 			}
 		});
 		bt_reset.addActionListener(new ActionListener() {
-
+			// 입력 초기화
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -536,7 +473,7 @@ public class CafePosSystem_pay extends Frame {
 		;
 
 		bt_pay.addActionListener(new ActionListener() {
-
+			// 결제
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pay();
@@ -569,20 +506,23 @@ public class CafePosSystem_pay extends Frame {
 		for (int i = 0; i < arr.size(); i++) {
 			allmoney += hm_select_menu_price.get(arr.get(i));
 		}
-
-		if (allmoney - usepoint < usepoint + getmoney) {
-			if (tf_allmoney.getText().equals("0")) {
-				change = 0;
-			} else {
-				change = usepoint + getmoney - allmoney;
-			}
-			tf_change.setText(money_format.format(change));
-			tf_balance.setText("0");
-		} else {
-			balance = allmoney - usepoint - getmoney;
-			tf_balance.setText(money_format.format(balance));
-			tf_change.setText("0");
+		balance = allmoney - usepoint - getmoney;
+		change = usepoint + getmoney - allmoney;
+		
+		
+		if (balance < 0) {
+			balance = 0;
 		}
+		if (change < 0) {
+			change = 0;
+		}
+		if(allmoney<=usepoint) {
+			change = 0;
+		}
+
+		tf_balance.setText(money_format.format(balance));
+		tf_change.setText(money_format.format(change));
+		
 	}
 
 	// 메뉴 리스트 자동 생성 메서드
@@ -641,13 +581,10 @@ public class CafePosSystem_pay extends Frame {
 	// 메뉴 리스트에 추가하는 메서드
 	public void selectMenuAdd() {
 		try {
-			String mno_s = li_menu.getSelectedItem().substring(0, 2);
-
-			if (li_menu.getSelectedItem().substring(0, 1).equals("0")) {
-				mno = Integer.parseInt(li_menu.getSelectedItem().substring(1, 2));
-			} else {
-				mno = Integer.parseInt(li_menu.getSelectedItem().substring(0, 2));
-			}
+			StringTokenizer st=new StringTokenizer(li_menu.getSelectedItem());
+			
+			String mno_s = st.nextToken();
+			mno=Integer.parseInt(mno_s);
 
 			sql = "select * from menu where mno=?";
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -768,59 +705,22 @@ public class CafePosSystem_pay extends Frame {
 			}
 
 			ResultSet rs = ps.executeQuery();
+			li_guest.setFont(new Font("monospace", Font.PLAIN, 10));
 
 			while (rs.next()) {
-
-				String no_empty = "";
-				String name_empty = "";
-				String point_empty = "";
-				String tel_empty = "";
-				String rank_empty = "";
 
 				gusno = rs.getInt("gusno");
 				gusname = rs.getString("gusname");
 				guspoint = rs.getInt("guspoint");
-				String guspoint_s = guspoint + "";
 				gustel = rs.getString("gustel");
 				rname = rs.getString("rname");
 				gussale = rs.getInt("gussale");
-
 				if (gusno == 0) {
 					continue;
 				}
 
-				if (gusno < 10) {
-					no_empty = "         ";
-				} else if (gusno >= 10 && gusno < 100) {
-					no_empty = "       ";
-				} else {
-					no_empty = "     ";
-				}
-
-				for (int i = 0; i < 16 - (gusname.length() * 3); i++) {
-					name_empty += " ";
-				}
-
-				if (guspoint_s.length() < 2) {
-					for (int i = 0; i < 14 - (guspoint_s.length() * 2); i++) {
-						point_empty += " ";
-					}
-				} else {
-					for (int i = 0; i < 15 - (guspoint_s.length() * 2); i++) {
-						point_empty += " ";
-					}
-				}
-
-				for (int i = 0; i < 31 - (gustel.length() * 2); i++) {
-					tel_empty += " ";
-				}
-
-				for (int i = 0; i < 18 - (rname.length() * 2); i++) {
-					rank_empty += " ";
-				}
-
-				li_guest.add(" " + gusno + no_empty + gusname + name_empty + guspoint + point_empty + gustel + tel_empty
-						+ rname + rank_empty + gussale);
+				li_guest.add(" " + emptySet(gusno + "", 12) + emptySet_Kor(gusname, 16) + emptySet(guspoint + "", 16)
+						+ emptySet_Kor(gustel, 44) + emptySet(rname, 18) + gussale);
 			}
 			rs.close();
 			ps.close();
@@ -834,7 +734,7 @@ public class CafePosSystem_pay extends Frame {
 		try {
 			int rankup = 0;
 			String rankname = "";
-			PopUpWindow puw = new PopUpWindow(this);
+			PopUpWindow puw = new PopUpWindow(frame);
 			if (tf_allmoney.getText().equals("0")) {
 
 				puw.showPopUp("메뉴 없음", "메뉴가 담겨있지 않습니다.", "메뉴를 담아주세요.");
@@ -842,6 +742,9 @@ public class CafePosSystem_pay extends Frame {
 			} else if (!tf_balance.getText().equals("0") && !tf_getmoney.getText().equals("")) {
 				puw.showPopUp("금액 부족", "주신 금액이 부족합니다.", "금액을 더 입력하세요.");
 
+			} else if (Integer.parseInt(tf_allmoney.getText().replaceAll(",", "")) < Integer
+					.parseInt(tf_usepoint.getText())) {
+				puw.showPopUp("포인트 오류", "포인트를 잘못 입력하였습니다.", "포인트는 총 금액보다 많이 사용할 수 없습니다.");
 			} else {
 
 				int bank_to_money = 0;
@@ -859,13 +762,29 @@ public class CafePosSystem_pay extends Frame {
 				PreparedStatement ps = conn.prepareStatement(sql);
 				ResultSet rs = ps.executeQuery();
 				while (rs.next()) {
-					bank_to_money += rs.getInt("money");
+					bank_to_money = rs.getInt("money");
 				}
-				bank_to_money = bank_to_money + allmoney - usepoint;
+				
+				int deposit=(int) ((allmoney * 0.9) - usepoint);
+				bank_to_money = bank_to_money + deposit;
 				sql = "update bank set money=?";
 				ps = conn.prepareStatement(sql);
 				ps.setInt(1, bank_to_money);
 				ps.executeUpdate();
+				
+				
+				// 뱅킹 기록
+				Calendar now = Calendar.getInstance();
+				java.sql.Timestamp jst = new java.sql.Timestamp(now.getTimeInMillis());
+				sql="insert into banking values(sq_banking_bno.nextval,?,?,?,?)";
+				ps=conn.prepareStatement(sql);
+				ps.setString(1, "판매수익");
+				ps.setInt(2,deposit );
+				ps.setInt(3, bank_to_money);
+				ps.setTimestamp(4, jst);
+				
+				ps.execute();
+				
 
 				if (!tf_gusno.getText().equals("0")) {
 					if (usepoint > 0) {
@@ -943,8 +862,7 @@ public class CafePosSystem_pay extends Frame {
 				}
 				// 결제 기록 저장
 
-				Calendar now = Calendar.getInstance();
-				java.sql.Timestamp jst = new java.sql.Timestamp(now.getTimeInMillis());
+				
 				int menucount = 0;
 				int menuprice = 0;
 
@@ -970,7 +888,7 @@ public class CafePosSystem_pay extends Frame {
 						ps.setInt(1, mno);
 						ps.setInt(2, gusno);
 						ps.setInt(3, usepoint);
-						ps.setInt(4, menuprice - usepoint);
+						ps.setInt(4, menuprice);
 						ps.setTimestamp(5, jst);
 						ps.setInt(6, ocount);
 						ps.execute();
@@ -980,12 +898,10 @@ public class CafePosSystem_pay extends Frame {
 				rs.close();
 				ps.close();
 
-				puw.showPopUp("결제 완료", "결제되었습니다", "거스름 돈은 " + tf_change.getText() + "원 입니다.", this);
+				puw.showPopUp( this,rankup,rankname);
 			}
 
-			if (rankup == 1) {
-				puw.showPopUp("등급 상승!", "축하합니다.", "회원 등급이 " + rankname + "(으)로 상승했습니다.");
-			}
+		
 
 		} catch (Exception e1) {
 			e1.printStackTrace();
@@ -993,23 +909,75 @@ public class CafePosSystem_pay extends Frame {
 
 	}
 
-	@Override
-	public Insets insets() {
-		Insets i = new Insets(60, 30, 30, 30);
-		return i;
+	// 회원 정보 선택 메서드
+	public void guestSelect() {
+		try {
+			
+			StringTokenizer st=new StringTokenizer(li_guest.getSelectedItem());
+			gusno=Integer.parseInt(st.nextToken());
+
+			sql = "select * from guest where gusno=?";
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setInt(1, gusno);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+				gusname = rs.getString("gusname");
+				guspoint = rs.getInt("guspoint");
+				gustel = rs.getString("gustel");
+				rname = rs.getString("rname");
+				gussale = rs.getInt("gussale");
+			}
+
+			tf_gusno.setText(gusno + "");
+			tf_gusname.setText(gusname);
+			tf_gusrank.setText(rname);
+			tf_guest_point.setText(guspoint + "");
+
+			rs.close();
+			ps.close();
+
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+	}
+	
+	// 공백 생성(한글)
+	public static String emptySet_Kor(String text, int length) {
+
+		StringBuffer empty_s = new StringBuffer();
+		StringBuffer result = new StringBuffer();
+		length -= text.length() * 3;
+		for (int i = 0; i < length; i++) {
+			empty_s.append(" ");
+		}
+		result.append(text);
+		result.append(empty_s.toString());
+
+		return result.toString();
+	}
+	// 공백 생성
+	public static String emptySet(String text, int length) {
+
+		StringBuffer empty_s = new StringBuffer();
+		StringBuffer result = new StringBuffer();
+		length -= text.length() * 2;
+		for (int i = 0; i < length; i++) {
+			empty_s.append(" ");
+		}
+		if (text.length() < 4) {
+			empty_s.deleteCharAt(0);
+		}
+		result.append(text);
+		result.append(empty_s.toString());
+
+		return result.toString();
 	}
 
-	public static void main(String[] args) throws Exception {
-		Class.forName("oracle.jdbc.driver.OracleDriver");
-		String url = "jdbc:oracle:thin:@localhost:1521:xe";
-		String user = "scott";
-		String pwd = "1234";
-
-		conn = DriverManager.getConnection(url, user, pwd);
-
-		CafePosSystem_pay cpsp = new CafePosSystem_pay();
-		cpsp.setSize(800, 600);
-		cpsp.setVisible(true);
+	@Override
+	public Insets insets() {
+		Insets i = new Insets(10, 30, 30, 30);
+		return i;
 	}
 
 }
