@@ -25,29 +25,13 @@ public class CafePosSystem_emp extends Panel {
    List li_viewList;
    boolean sw;
    
-   int gusno;
-   String gusname;
-   int guspoint;
-   String gustel;
-   String rname;
-   double rpoint;
-   int mno;
-   String mname;
-   int mprice;
-   int ono;
-   String odate;
-   int opoint;
-   int ocash;
-   int ocount;
    int eno;
    String ename;
    String gname;
    String etel;
    String eid;
    String epwd;
-   String gsal;
-   int money;
-   int gussale;
+
    Connection conn;
    String sql;
 
@@ -446,6 +430,18 @@ public class CafePosSystem_emp extends Panel {
          p_south_south.add(bt_reset);
          
          // 이벤트
+         
+         // 엔터로 검색
+         tf_searchEmp.addKeyListener(new KeyAdapter() {
+        	 @Override
+ 			public void keyPressed(KeyEvent e) {
+ 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+ 					searchEmp();
+ 	               reset2();
+ 				}
+        	 }
+		});
+         
          // 검색
          bt_searchEmp.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -480,7 +476,7 @@ public class CafePosSystem_emp extends Panel {
                   ResultSet rs = ps.executeQuery();
                   while (rs.next()) {
                      tf_viewNo.setText(rs.getString("eno"));
-                     if(tf_viewNo.getText().equals("1")) {
+                     if(tf_viewNo.getText().equals("0")) {
                         c_viewGrade.removeAll();
                         c_viewGrade.add("BOSS");
                          c_viewGrade.add("MANAGER");

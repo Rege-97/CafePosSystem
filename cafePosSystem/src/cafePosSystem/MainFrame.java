@@ -1,7 +1,31 @@
 package cafePosSystem;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Checkbox;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.Label;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
+import java.awt.Panel;
+import java.awt.TextField;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -15,7 +39,7 @@ public class MainFrame extends Frame implements ActionListener {
 	// 퀵 메뉴아이템
 	MenuItem mi_qmenu, mi_qpoint, mi_qguest;
 	// 초기화 메뉴아이템
-	MenuItem mi_reset_guest, mi_reset_menu, mi_reset_emp, mi_reset_sale, mi_reset_all;
+	MenuItem mi_reset_guest, mi_reset_menu, mi_reset_emp, mi_reset_sale, mi_reset_all,mi_ppt;
 
 	Panel p_north, p_center;
 	Button bt_pay, bt_guest, bt_menu, bt_emp, bt_sale, bt_bank;
@@ -31,6 +55,7 @@ public class MainFrame extends Frame implements ActionListener {
 	boolean login;
 
 	static Connection conn;
+	String eid,epwd;
 	String sql;
 	String gname;
 	PopUpWindow puw;
@@ -39,6 +64,7 @@ public class MainFrame extends Frame implements ActionListener {
 		try {
 			setSize(800, 600);
 			setVisible(true);
+
 
 			// 화면 중앙 출력
 			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -87,9 +113,11 @@ public class MainFrame extends Frame implements ActionListener {
 		m_file = new Menu("파일");
 
 		mi_close = new MenuItem("닫기");
+		mi_ppt=new MenuItem("시연용 데이터 등록");
 
 		mbar.add(m_file);
 		m_file.add(mi_close);
+		m_file.add(mi_ppt);
 
 		// 메인
 		p_center = new Panel(new BorderLayout());
@@ -261,6 +289,7 @@ public class MainFrame extends Frame implements ActionListener {
 		bt_findid.addActionListener(this);
 		bt_findpwd.addActionListener(this);
 		mi_close.addActionListener(this);
+		mi_ppt.addActionListener(this);
 
 	}
 
@@ -359,6 +388,7 @@ public class MainFrame extends Frame implements ActionListener {
 			Object ob = e.getSource();
 
 			if (ob == mi_logout) {
+				
 				this.remove(p_center);
 				this.remove(mbar);
 				this.remove(p_north);
@@ -374,7 +404,7 @@ public class MainFrame extends Frame implements ActionListener {
 			} else if (ob == mi_qpoint) {
 				puw.quickPointAdd(conn);
 			} else if (ob == mi_qmenu) {
-				puw.quickMenuAdd(conn);
+				puw.quickMenuAdd(conn,p_center);
 
 			} else if (ob == mi_reset_guest) {
 				puw.showResetPopup("회원 정보 초기화", this, conn, "guest");
@@ -395,6 +425,7 @@ public class MainFrame extends Frame implements ActionListener {
 				remove(p_center);
 				p_center = new CafePosSystem_pay(this, conn);
 				this.add(p_center, "Center");
+				
 				this.validate();
 
 			} else if (ob == bt_guest) {
@@ -442,6 +473,83 @@ public class MainFrame extends Frame implements ActionListener {
 				puw.findId(conn);
 			} else if (ob == bt_findpwd) {
 				puw.findPwd(conn);
+			}else if(ob==mi_ppt) {
+	
+				Statement st = conn.createStatement();
+				st.addBatch("delete guest");
+				st.addBatch("insert into guest values(0, '비회원',0,'000-0000-0000','Unrank',0)");
+				st.addBatch("drop sequence sq_guest_gusno");
+				st.addBatch("create sequence sq_guest_gusno");
+				st.addBatch("delete menu");
+				st.addBatch("drop sequence sq_menu_mno");
+				st.addBatch("create sequence sq_menu_mno");
+				st.addBatch("delete employee");
+				st.addBatch("insert into employee values(0,'김호찬','BOSS','010-1234-5678','admin','1234',1)");
+				st.addBatch("drop sequence sq_employee_eno");
+				st.addBatch("create sequence sq_employee_eno");
+				st.addBatch("delete sales");
+				st.addBatch("drop sequence sq_sales_ono");
+				st.addBatch("create sequence sq_sales_ono");
+				st.addBatch("delete bank");
+				st.addBatch("delete banking");
+				st.addBatch("drop sequence sq_banking_bno");
+				st.addBatch("create sequence sq_banking_bno");
+				st.addBatch("insert into bank values(100000)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'박현진',200,'010-1234-1234','Gold' ,199000)");
+				st.addBatch("insert into employee values(sq_employee_eno.nextval,'김채현','MANAGER','010-2345-6789','a1','1234',0)");
+				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '남광준', 'STAFF', '010-1818-3344', 'a2', '1234', 0)");
+				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '김범희', 'MANAGER', '010-9172-4823', 'a3', '1234', 0)");
+				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '김도영', 'ALBAR', '010-4628-7391', 'a4', '1234', 0)");
+				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '김동민', 'STAFF', '010-5834-1269', 'a5', '1234', 0)");
+				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '김두원', 'MANAGER', '010-7912-3746', 'a6', '1234', 0)");
+				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '이민석', 'ALBAR', '010-3487-9261', 'a7', '1234', 0)");
+				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '김남혁', 'STAFF', '010-5621-8347', 'a8', '1234', 0)");
+				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '채수림', 'MANAGER', '010-8391-4726', 'a9', '1234', 0)");
+				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '이종원', 'ALBAR', '010-2764-9183', 'a10', '1234', 0)");
+				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '권순욱', 'STAFF', '010-6384-2751', 'a11', '1234', 0)");
+				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '이수한', 'MANAGER', '010-4173-6928', 'a12', '1234', 0)");
+				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '장동연', 'ALBAR', '010-9532-7461', 'a13', '1234', 0)");
+				st.addBatch("insert into menu values(sq_menu_mno.nextval,'아메리카노',4000)");
+				st.addBatch("insert into menu values(sq_menu_mno.nextval,'카페라떼',4500)");
+				st.addBatch("insert into menu values(sq_menu_mno.nextval,'카푸치노',4500)");
+				st.addBatch("insert into menu values(sq_menu_mno.nextval,'바닐라라떼',4500)");
+				st.addBatch("insert into menu values(sq_menu_mno.nextval,'아망추',5000)");
+				st.addBatch("insert into menu values(sq_menu_mno.nextval,'카페모카',5000)");
+				st.addBatch("insert into menu values(sq_menu_mno.nextval,'딸기스무디',5500)");
+				st.addBatch("insert into menu values(sq_menu_mno.nextval,'망고스무디',5500)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'정도윤', 9372, '010-5678-9012', 'Bronze', 19200)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'이서윤', 8291, '010-2345-6789', 'Silver', 76400)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'강지우', 6748, '010-6789-0123', 'Silver', 81500)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'최서연', 4523, '010-4567-8901', 'Platinum', 275000)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'김도현', 1103, '010-1357-2468', 'Gold', 179300)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'조하준', 5821, '010-7890-1234', 'Gold', 128400)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'박지후', 1290, '010-3456-7890', 'Gold', 152300)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'장현우', 7852, '010-9012-3456', 'Bronze', 47800)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'최서호', 4732, '010-4680-5791', 'Silver', 68500)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'윤지민', 3104, '010-8901-2345', 'Platinum', 322000)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'조태윤', 2501, '010-7913-8024', 'Bronze', 37200)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'윤서아', 1294, '010-8024-9135', 'Silver', 59500)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'이수빈', 6528, '010-2468-3579', 'Platinum', 254000)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'임윤서', 9420, '010-0123-4567', 'Silver', 92500)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'장민서', 7482, '010-9135-0246', 'Gold', 102700)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'정윤우', 5932, '010-5791-6802', 'Gold', 144000)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'박예준', 8290, '010-3579-4680', 'Bronze', 12800)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'강채원', 8391, '010-6802-7913', 'Platinum', 410000)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'임도윤', 3948, '010-0246-1357', 'Platinum', 260000)");
+
+				
+				st.executeBatch();
+
+				
+				this.remove(p_center);
+				this.remove(mbar);
+				login();
+				this.validate();
+				cb_autoid.setState(true);
+
+
+				
+				
 			}
 
 		} catch (Exception e1) {
@@ -452,6 +560,7 @@ public class MainFrame extends Frame implements ActionListener {
 
 	// 로그인 확인
 	public void loginCheck() throws Exception {
+		login=false;
 		sql = "select * from employee where eid=? and epwd=?";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setString(1, tf_id.getText());

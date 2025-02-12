@@ -248,6 +248,67 @@ public class CafePosSystem_guest extends Panel {
 /////////////////////////////////////////////////////  1번 회원 이름, 전화번호 조회  //////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+		tf_search.addKeyListener(new KeyAdapter() {
+			// 엔터로 회원 이름, 전화번호 검색
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					try {
+						PopUpWindow puw = new PopUpWindow(frame);
+
+						if (tf_search.getText().isEmpty()) {
+
+							li_veiwlist.removeAll();
+							puw.showPopUp("안내메세지", "검색어를", "입력 해주세요");
+						} else {
+
+							if (cbg_gusgroup.getSelectedCheckbox() == cb_gusname) {
+								sql = "select gusno,gusname,gustel,rname,guspoint,gussale from guest where gusname like ? order by gusname asc ";
+
+							} else if (cbg_gusgroup.getSelectedCheckbox() == cb_gustel) {
+								sql = "select gusno, gusname,gustel,rname,guspoint,gussale from guest where gustel like ? order by gustel asc ";
+
+							} else {
+								li_veiwlist.removeAll();
+							}
+
+							PreparedStatement ps = conn.prepareStatement(sql);
+
+							ps.setString(1, "%" + tf_search.getText() + "%");
+
+							ResultSet rs = ps.executeQuery(); // 셋팅한 결과 가져와
+							li_veiwlist.removeAll();
+							while (rs.next()) {
+
+								// 체크상태일때 실행 그룹에서의 선택한 체크박스를 반환하는 메소드 반환 후 cb_gustel 변수와 동일하다는 조건문
+
+								gusno = rs.getInt("gusno");
+								gusname = rs.getString("gusname");
+								gustel = rs.getString("gustel");
+								rname = rs.getString("rname");
+								guspoint = rs.getInt("guspoint");
+								gussale = rs.getInt("gussale");
+
+								li_veiwlist
+										.add(guestSet(gusno + "", 8) + guestSet_Kor(gusname, 20) + guestSet_Kor(gustel, 50)
+												+ guestSet_Kor(rname, 35) + guestSet(guspoint + "", 10) + gussale);
+
+							}
+
+							sw = false;
+							rs.close();
+							ps.close();
+
+						}
+					} catch (Exception ee) {
+						ee.printStackTrace();
+
+					}
+				}
+			}
+			
+		});
+		
 		// 1번 회원 이름, 전화번호 검색
 		bt_search.addActionListener(new ActionListener() {
 

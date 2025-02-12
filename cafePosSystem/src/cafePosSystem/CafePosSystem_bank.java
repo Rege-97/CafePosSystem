@@ -2,6 +2,7 @@ package cafePosSystem;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
+import java.awt.Choice;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -16,6 +17,8 @@ import java.awt.TextArea;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.Connection;
@@ -117,6 +120,12 @@ public class CafePosSystem_bank extends Panel {
 
 		p_center_north_south = new Panel(new FlowLayout());
 		p_center_north.add(p_center_north_south, "South");
+		Choice c_io = new Choice();
+		c_io.add("전체내역");
+		c_io.add("입금내역");
+		c_io.add("출금내역");
+		p_center_north_south.add(c_io);
+
 		lb_allmoney = new Label("현재 잔액");
 		tf_allmoney = new TextField();
 		tf_allmoney.setEditable(false);
@@ -231,6 +240,26 @@ public class CafePosSystem_bank extends Panel {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		c_io.addItemListener(new ItemListener() {
+
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				try {
+					if (c_io.getSelectedItem().equals("전체내역")) {
+						setBankList();
+					} else if (c_io.getSelectedItem().equals("입금내역")) {
+						setBankListIn();
+
+					} else if (c_io.getSelectedItem().equals("출금내역")) {
+						setBankListOut();
+
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
 
 		tf_money.addKeyListener(new KeyAdapter() {
 			// 숫자 외 입력 방지
@@ -355,7 +384,96 @@ public class CafePosSystem_bank extends Panel {
 		tf_ename.setText("");
 		tf_gname.setText("");
 		tf_gsal.setText("");
-		
+
+		rs.close();
+		ps.close();
+	}
+
+	// 입금 내역만 조회
+	public void setBankListIn() throws Exception {
+		ta_banking.setText("");
+
+		sql = "select * from banking where bmoney >=0 order by bno";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ResultSet rs = ps.executeQuery();
+
+		while (rs.next()) {
+			bno = rs.getInt("bno");
+			bname = rs.getString("bname");
+			bmoney = rs.getInt("bmoney");
+			balance = rs.getInt("balance");
+			bdate = rs.getTimestamp("bdate");
+			String io = "";
+			if (bmoney >= 0) {
+				io = "입금";
+			} else {
+				io = "출금";
+			}
+			String empty = "\t\t\t";
+			if ((money_format.format(bmoney) + "원").length() >= 8) {
+				empty = "\t\t";
+			}
+
+			ta_banking.append(bno + "\t" + sdf_now.format(bdate) + "\t\t" + io + "\t\t" + bname + "\t\t"
+					+ money_format.format(bmoney) + "원" + empty + money_format.format(balance) + "원\n");
+		}
+
+		sql = "select * from bank";
+		ps = conn.prepareStatement(sql);
+		rs = ps.executeQuery();
+		while (rs.next()) {
+			tf_allmoney.setText(money_format.format(rs.getInt("money")) + " 원");
+		}
+		tf_money.setText("");
+		tf_eno.setText("");
+		tf_ename.setText("");
+		tf_gname.setText("");
+		tf_gsal.setText("");
+
+		rs.close();
+		ps.close();
+	}
+
+	// 입금 내역만 조회
+	public void setBankListOut() throws Exception {
+		ta_banking.setText("");
+
+		sql = "select * from banking where bmoney <0 order by bno";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ResultSet rs = ps.executeQuery();
+
+		while (rs.next()) {
+			bno = rs.getInt("bno");
+			bname = rs.getString("bname");
+			bmoney = rs.getInt("bmoney");
+			balance = rs.getInt("balance");
+			bdate = rs.getTimestamp("bdate");
+			String io = "";
+			if (bmoney >= 0) {
+				io = "입금";
+			} else {
+				io = "출금";
+			}
+			String empty = "\t\t\t";
+			if ((money_format.format(bmoney) + "원").length() >= 8) {
+				empty = "\t\t";
+			}
+
+			ta_banking.append(bno + "\t" + sdf_now.format(bdate) + "\t\t" + io + "\t\t" + bname + "\t\t"
+					+ money_format.format(bmoney) + "원" + empty + money_format.format(balance) + "원\n");
+		}
+
+		sql = "select * from bank";
+		ps = conn.prepareStatement(sql);
+		rs = ps.executeQuery();
+		while (rs.next()) {
+			tf_allmoney.setText(money_format.format(rs.getInt("money")) + " 원");
+		}
+		tf_money.setText("");
+		tf_eno.setText("");
+		tf_ename.setText("");
+		tf_gname.setText("");
+		tf_gsal.setText("");
 
 		rs.close();
 		ps.close();
@@ -604,15 +722,19 @@ public class CafePosSystem_bank extends Panel {
 				eno.add(rs.getInt("eno"));
 				ename.add(rs.getString("ename"));
 			}
-
-			timer = new Timer(100, new ActionListener() {
+			
+			
+			
+			timer = new Timer(10, new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					lb_gamemain.setText(eno.get(index) + " " + ename.get(index));
-					index += 1;
-					if (index == eno.size()) {
-						index = 0;
-					}
+//					index += 1;
+//					if (index == eno.size()) {
+//						index = 0;
+//					}
+					
+					index=(int)(Math.random()*eno.size())+1;
 				}
 			});
 			timer.start();

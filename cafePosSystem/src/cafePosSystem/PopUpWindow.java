@@ -251,7 +251,7 @@ public class PopUpWindow {
 
 		Font font_1 = new Font("Default Font", Font.BOLD, 15);
 		Font font_2 = new Font("Default Font", Font.BOLD, 12);
-		Panel p_popup_center_south=new Panel(new BorderLayout());
+		Panel p_popup_center_south = new Panel(new BorderLayout());
 		Label lb_bankmoney = new Label("금고 금액", Label.CENTER);
 		TextField tf_bankmoney = new TextField();
 
@@ -264,7 +264,7 @@ public class PopUpWindow {
 		popup.setSize(300, 150);
 		popup.setLayout(new BorderLayout());
 
-		Panel p_popup_center = new Panel(new GridLayout(4, 1)){
+		Panel p_popup_center = new Panel(new GridLayout(4, 1)) {
 			public Insets getInsets() {
 				return new Insets(0, 50, 0, 50); // 상, 좌, 하, 우 여백 설정
 			}
@@ -278,9 +278,8 @@ public class PopUpWindow {
 
 		popup.add(p_popup_center, "Center");
 
-	
 		if (table.equals("sale") || table.equals("all")) {
-			p_popup_center.setLayout(new GridLayout(3,1));
+			p_popup_center.setLayout(new GridLayout(3, 1));
 			p_popup_center.add(lb_popup_pop1);
 			p_popup_center.add(lb_popup_pop2);
 			p_popup_center.add(p_popup_center_south);
@@ -394,141 +393,140 @@ public class PopUpWindow {
 						mf.login();
 						mf.validate();
 					} else if (table.equals("sale")) {
-						if(tf_bankmoney.getText().equals("")) {
+						if (tf_bankmoney.getText().equals("")) {
 							tf_bankmoney.setText("금액을 입력하세요.");
 							Thread.sleep(1000);
 							tf_bankmoney.setText("");
-						}else {
-						
-						sql = "delete sales";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "drop sequence sq_sales_ono";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "create sequence sq_sales_ono";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "delete bank";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "delete banking";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "drop sequence sq_banking_bno";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "create sequence sq_banking_bno";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						
-						sql="insert into bank values(?)";
-						ps = conn.prepareStatement(sql);
-						ps.setInt(1, Integer.parseInt(tf_bankmoney.getText()));
-						ps.execute();
-						
-						Calendar now = Calendar.getInstance();
-						java.sql.Timestamp jst = new java.sql.Timestamp(now.getTimeInMillis());
-						sql="insert into banking values(0,'초기자금',?,?,?)";
-						ps = conn.prepareStatement(sql);
-						ps.setInt(1, Integer.parseInt(tf_bankmoney.getText()));
-						ps.setInt(2, Integer.parseInt(tf_bankmoney.getText()));
-						ps.setTimestamp(3,jst);
-						ps.execute();
-	
-						ps.close();
-						mf.remove(mf.p_center);
-						mf.remove(mf.mbar);
-						mf.remove(mf.p_north);
-						mf.login();
-						mf.validate();
+						} else {
+
+							sql = "delete sales";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "drop sequence sq_sales_ono";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "create sequence sq_sales_ono";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "delete bank";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "delete banking";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "drop sequence sq_banking_bno";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "create sequence sq_banking_bno";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+
+							sql = "insert into bank values(?)";
+							ps = conn.prepareStatement(sql);
+							ps.setInt(1, Integer.parseInt(tf_bankmoney.getText()));
+							ps.execute();
+
+							Calendar now = Calendar.getInstance();
+							java.sql.Timestamp jst = new java.sql.Timestamp(now.getTimeInMillis());
+							sql = "insert into banking values(0,'초기자금',?,?,?)";
+							ps = conn.prepareStatement(sql);
+							ps.setInt(1, Integer.parseInt(tf_bankmoney.getText()));
+							ps.setInt(2, Integer.parseInt(tf_bankmoney.getText()));
+							ps.setTimestamp(3, jst);
+							ps.execute();
+
+							ps.close();
+							mf.remove(mf.p_center);
+							mf.remove(mf.mbar);
+							mf.remove(mf.p_north);
+							mf.login();
+							mf.validate();
 						}
 					} else if (table.equals("all")) {
-						if(tf_bankmoney.getText().equals("")) {
+						if (tf_bankmoney.getText().equals("")) {
 							tf_bankmoney.setText("금액을 입력하세요.");
 							Thread.sleep(1000);
 							tf_bankmoney.setText("");
-						}else {
-						sql = "delete guest";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "insert into guest values(0, '비회원',0,'000-0000-0000','Unrank',0)";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "drop sequence sq_guest_gusno";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "create sequence sq_guest_gusno";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
+						} else {
+							sql = "delete guest";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "insert into guest values(0, '비회원',0,'000-0000-0000','Unrank',0)";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "drop sequence sq_guest_gusno";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "create sequence sq_guest_gusno";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
 
-						sql = "delete menu";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "drop sequence sq_menu_mno";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "create sequence sq_menu_mno";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
+							sql = "delete menu";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "drop sequence sq_menu_mno";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "create sequence sq_menu_mno";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
 
-						sql = "delete employee";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "insert into employee values(0,'김채현','BOSS','010-1234-5678','admin','1234',0)";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "drop sequence sq_employee_eno";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "create sequence sq_employee_eno";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
+							sql = "delete employee";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "insert into employee values(0,'김채현','BOSS','010-1234-5678','admin','1234',0)";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "drop sequence sq_employee_eno";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "create sequence sq_employee_eno";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
 
-						sql = "delete sales";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "drop sequence sq_sales_ono";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "create sequence sq_sales_ono";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "delete bank";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "delete banking";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "drop sequence sq_banking_bno";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						sql = "create sequence sq_banking_bno";
-						ps = conn.prepareStatement(sql);
-						ps.execute();
-						
-						sql="insert into bank values(?)";
-						ps = conn.prepareStatement(sql);
-						ps.setInt(1, Integer.parseInt(tf_bankmoney.getText()));
-						ps.execute();
-						
-						Calendar now = Calendar.getInstance();
-						java.sql.Timestamp jst = new java.sql.Timestamp(now.getTimeInMillis());
-						sql="insert into banking values(0,'초기자금',?,?,?)";
-						ps = conn.prepareStatement(sql);
-						ps.setInt(1, Integer.parseInt(tf_bankmoney.getText()));
-						ps.setInt(2, Integer.parseInt(tf_bankmoney.getText()));
-						ps.setTimestamp(3,jst);
-						ps.execute();
-						ps.close();
-						
-						mf.remove(mf.p_center);
-						mf.remove(mf.mbar);
-						mf.remove(mf.p_north);
-						mf.login();
-						mf.validate();
+							sql = "delete sales";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "drop sequence sq_sales_ono";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "create sequence sq_sales_ono";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "delete bank";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "delete banking";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "drop sequence sq_banking_bno";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
+							sql = "create sequence sq_banking_bno";
+							ps = conn.prepareStatement(sql);
+							ps.execute();
 
-						
+							sql = "insert into bank values(?)";
+							ps = conn.prepareStatement(sql);
+							ps.setInt(1, Integer.parseInt(tf_bankmoney.getText()));
+							ps.execute();
+
+							Calendar now = Calendar.getInstance();
+							java.sql.Timestamp jst = new java.sql.Timestamp(now.getTimeInMillis());
+							sql = "insert into banking values(0,'초기자금',?,?,?)";
+							ps = conn.prepareStatement(sql);
+							ps.setInt(1, Integer.parseInt(tf_bankmoney.getText()));
+							ps.setInt(2, Integer.parseInt(tf_bankmoney.getText()));
+							ps.setTimestamp(3, jst);
+							ps.execute();
+							ps.close();
+
+							mf.remove(mf.p_center);
+							mf.remove(mf.mbar);
+							mf.remove(mf.p_north);
+							mf.login();
+							mf.validate();
+
 						}
 					}
 
@@ -688,7 +686,7 @@ public class PopUpWindow {
 	}
 
 	// 퀵 메뉴 메뉴 등록 팝업
-	public void quickMenuAdd(Connection conn) {
+	public void quickMenuAdd(Connection conn,Panel p_center) {
 		if (popup != null && popup.isVisible()) {
 			return;
 		}
@@ -794,7 +792,26 @@ public class PopUpWindow {
 
 						p_popup_south.remove(bt_popup_ok);
 						bt_popup_cancle.setLabel("확인");
+						
+						if(p_center instanceof CafePosSystem_pay) {
+							sql = "select * from menu order by mno";
+							ps = conn.prepareStatement(sql);
+							ResultSet rs = ps.executeQuery();
+							int mno=0;
+							while(rs.next()) {
+								mno=rs.getInt("mno");
+							}							
+							((CafePosSystem_pay) p_center).hm_select_menu_count.put(mno, 0);
+							((CafePosSystem_pay) p_center).hm_select_menu_price.put(mno, 0);
+							((CafePosSystem_pay)p_center).arr.add(mno);
+							((CafePosSystem_pay) p_center).menuListUp();
+							
+							rs.close();
+							ps.close();
+						}
+
 						popup.validate();
+		
 
 					}
 
@@ -809,6 +826,7 @@ public class PopUpWindow {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
 				popup.setVisible(false);
 				popup.dispose();
 
@@ -1631,6 +1649,7 @@ public class PopUpWindow {
 		});
 
 	}
+
 	// 공백생성(한글)
 	public static String emptySet_Kor(String text, int length) {
 
@@ -1645,6 +1664,7 @@ public class PopUpWindow {
 
 		return result.toString();
 	}
+
 	// 공백생성
 	public static String emptySet(String text, int length) {
 

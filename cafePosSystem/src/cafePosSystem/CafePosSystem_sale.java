@@ -25,13 +25,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 import javax.swing.JSeparator;
 
-public class CafePosSystem_sale extends Panel  {
+public class CafePosSystem_sale extends Panel {
 
 	Frame frame;
 	String sql;
@@ -169,7 +170,7 @@ public class CafePosSystem_sale extends Panel  {
 		cal.setTime(now);
 		cal.add(Calendar.DATE, -1);
 		String yesterdayString = sdf1.format(cal.getTime());
-		
+
 		// 전주
 		cal.setTime(now);
 		cal.add(Calendar.DATE, -7);
@@ -279,7 +280,7 @@ public class CafePosSystem_sale extends Panel  {
 
 		Label mmmt3 = new Label();
 		Label mmmt4 = new Label();
-		
+
 		TextArea tf_total = new TextArea("", 1, 1, TextArea.SCROLLBARS_NONE);
 		TextArea tf_payment = new TextArea("", 1, 1, TextArea.SCROLLBARS_NONE);
 		p_table_center_south_north_south_west_center_west.add(tf_total);
@@ -434,7 +435,7 @@ public class CafePosSystem_sale extends Panel  {
 		p_table_south_center_west_north.setLayout(new GridLayout(0, 1));
 
 		Label lb_guestnumber = new Label("  번호          회원명          주문내역          결제금액          사용포인트");
-		
+
 		p_table_south_center_west_north.add(lb_guestnumber);
 
 		// 하단의 중단의 왼쪽의 1열 보더레이아웃의 센터 List
@@ -462,7 +463,6 @@ public class CafePosSystem_sale extends Panel  {
 		Label lb_notmorethan30000won = new Label("3만원 이하");
 		Label lb_notmorethan50000won = new Label("5만원 이하");
 		Label lb_notmorethan00000won = new Label("5만원 초과");
-		
 
 		Label lb_numberofpayments = new Label("결제건수");
 		TextArea ta_notmorethan5000won = new TextArea("", 1, 1, TextArea.SCROLLBARS_NONE);
@@ -477,12 +477,34 @@ public class CafePosSystem_sale extends Panel  {
 		ta_notmorethan00000won.setEditable(false);
 
 		Label lb_menuname = new Label("메뉴명");
-		Label lb_menu1 = new Label("아메리카노");
-		Label lb_menu2 = new Label("카페라떼");
-		Label lb_menu3 = new Label("카푸치노");
-		Label lb_menu4 = new Label("바닐라라떼");
-		Label lb_menu5 = new Label("카페모카");
-		Label lb_menu6 = new Label("카라멜마끼아토");
+		Label lb_menu1 = new Label("");
+		Label lb_menu2 = new Label("");
+		Label lb_menu3 = new Label("");
+		Label lb_menu4 = new Label("");
+		Label lb_menu5 = new Label("");
+		Label lb_menu6 = new Label("");
+
+		// 메뉴명 라벨 자동 생성
+		Label[] lb_menus = { lb_menu1, lb_menu2, lb_menu3, lb_menu4, lb_menu5, lb_menu6 };
+
+		try {
+			sql = "select * from menu order by mno";
+			PreparedStatement psmenu = conn.prepareStatement(sql);
+			ResultSet rsmenu = psmenu.executeQuery();
+			int index=0;
+			while (rsmenu.next()&&index<6) {
+				
+				lb_menus[index].setText(rsmenu.getString("mname"));
+				index++;
+
+			}
+			psmenu.close();
+			rsmenu.close();
+			
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		Button lb_cancellation_of_payment = new Button("결제취소");
 
@@ -548,52 +570,43 @@ public class CafePosSystem_sale extends Panel  {
 
 		// 메인에 하단 Panel 부착
 		this.add(p_table_south, BorderLayout.SOUTH);
-		
+
 		menuTransitionAction();
 //		============================================================================
-		
-		// 메뉴총괄표 조회 날짜 칸 
-		try{
-			sql = "select distinct\r\n"
-					+ "    to_char(odate,'YYYY-MM-DD')as day\r\n"
-					+ "from sales\r\n"
+
+		// 메뉴총괄표 조회 날짜 칸
+		try {
+			sql = "select distinct\r\n" + "    to_char(odate,'YYYY-MM-DD')as day\r\n" + "from sales\r\n"
 					+ "order by day desc";
 			ps = conn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-					String ymd = rs.getString("day");
-					c_choice2.add(ymd);
+			while (rs.next()) {
+				String ymd = rs.getString("day");
+				c_choice2.add(ymd);
 			}
-		//매출총괄표 출력 
-			sql = "SELECT    \r\n"
-					+ "    CASE WHEN money IS NULL THEN 0 ELSE money END AS money, \r\n"
+			// 매출총괄표 출력
+			sql = "SELECT    \r\n" + "    CASE WHEN money IS NULL THEN 0 ELSE money END AS money, \r\n"
 					+ "    CASE WHEN dc IS NULL THEN 0 ELSE dc END AS dc,  \r\n"
 					+ "    CASE WHEN ofs IS NULL THEN 0 ELSE ofs END AS ofs,\r\n"
 					+ "    CASE WHEN st IS NULL THEN 0 ELSE st END AS st,\r\n"
 					+ "    CASE WHEN toa IS NULL THEN 0 ELSE toa END AS toa,\r\n"
-					+ "    CASE WHEN cnt IS NULL THEN 0 ELSE cnt END AS cnt,\r\n"
-					+ "    CASE \r\n"
-					+ "        WHEN cnt > 0 THEN ROUND (money / cnt)   -- 결제단가  \r\n"
-					+ "        ELSE 0 \r\n"
-					+ "    END AS avgcnt \r\n"
-					+ "FROM (\r\n"
-					+ "    SELECT \r\n"
+					+ "    CASE WHEN cnt IS NULL THEN 0 ELSE cnt END AS cnt,\r\n" + "    CASE \r\n"
+					+ "        WHEN cnt > 0 THEN ROUND (money / cnt)   -- 결제단가  \r\n" + "        ELSE 0 \r\n"
+					+ "    END AS avgcnt \r\n" + "FROM (\r\n" + "    SELECT \r\n"
 					+ "        SUM(ocash) AS money, -- 총매출액   \r\n"
 					+ "        SUM(opoint) AS dc,  -- 할인금액 (포인트 사용 금액)  \r\n"
 					+ "        SUM(ocash) - SUM(opoint) AS ofs, -- 매출금액 (총매출액 - 할인금액)   \r\n"
 					+ "        SUM(ocash) * 0.1 AS st, -- 부가세  결제금액10%  \r\n"
 					+ "        SUM(ocash) - SUM(opoint) - (SUM(ocash) * 0.1) AS toa, -- 순매출  \r\n"
 					+ "        COUNT(DISTINCT TO_CHAR(odate, 'YYYY-MM-DD HH24:MI:SS')) AS cnt  -- 주문 건수 (날짜, 시, 분, 초까지 동일한 주문은 1건으로 처리)  \r\n"
-					+ "    FROM sales\r\n"
-					+ "    WHERE TRUNC(sales.odate) = TO_DATE(?, 'YYYY-MM-DD')\r\n"
-					+ "        AND ocash >= 0  -- 해당 날짜 검색 (년-월-일 기준)  \r\n"
-					+ ")";
-			
-			//금일 
+					+ "    FROM sales\r\n" + "    WHERE TRUNC(sales.odate) = TO_DATE(?, 'YYYY-MM-DD')\r\n"
+					+ "        AND ocash >= 0  -- 해당 날짜 검색 (년-월-일 기준)  \r\n" + ")";
+
+			// 금일
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, nowString);
 			rs = ps.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
 				String total = rs.getString("money");
 				String dc = rs.getString("dc");
 				String ofs = rs.getString("ofs");
@@ -601,15 +614,15 @@ public class CafePosSystem_sale extends Panel  {
 				String toa = rs.getString("toa");
 				String cnt = rs.getString("cnt");
 				String avgcnt = rs.getString("avgcnt");
-				ta_today.setText(total + "\t\t" + dc + "\t\t" + ofs + "\t\t" + st + "\t\t" + toa
-						+ "\t\t" + cnt + "\t\t" + avgcnt);
+				ta_today.setText(total + "\t\t" + dc + "\t\t" + ofs + "\t\t" + st + "\t\t" + toa + "\t\t" + cnt + "\t\t"
+						+ avgcnt);
 			}
-			
-			//전일
+
+			// 전일
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, yesterdayString);
 			rs = ps.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
 				String total = rs.getString("money");
 				String dc = rs.getString("dc");
 				String ofs = rs.getString("ofs");
@@ -617,14 +630,14 @@ public class CafePosSystem_sale extends Panel  {
 				String toa = rs.getString("toa");
 				String cnt = rs.getString("cnt");
 				String avgcnt = rs.getString("avgcnt");
-				ta_yesterday.setText(total + "\t\t" + dc + "\t\t" + ofs + "\t\t" + st + "\t\t" + toa
-						+ "\t\t" + cnt + "\t\t" + avgcnt);
+				ta_yesterday.setText(total + "\t\t" + dc + "\t\t" + ofs + "\t\t" + st + "\t\t" + toa + "\t\t" + cnt
+						+ "\t\t" + avgcnt);
 			}
-			//전주
+			// 전주
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, lastWeekString);
 			rs = ps.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
 				String total = rs.getString("money");
 				String dc = rs.getString("dc");
 				String ofs = rs.getString("ofs");
@@ -632,14 +645,14 @@ public class CafePosSystem_sale extends Panel  {
 				String toa = rs.getString("toa");
 				String cnt = rs.getString("cnt");
 				String avgcnt = rs.getString("avgcnt");
-				ta_lastweek.setText(total + "\t\t" + dc + "\t\t" + ofs + "\t\t" + st + "\t\t" + toa
-						+ "\t\t" + cnt + "\t\t" + avgcnt);
+				ta_lastweek.setText(total + "\t\t" + dc + "\t\t" + ofs + "\t\t" + st + "\t\t" + toa + "\t\t" + cnt
+						+ "\t\t" + avgcnt);
 			}
-			//전월
+			// 전월
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, lastMonthString);
 			rs = ps.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
 				String total = rs.getString("money");
 				String dc = rs.getString("dc");
 				String ofs = rs.getString("ofs");
@@ -647,24 +660,24 @@ public class CafePosSystem_sale extends Panel  {
 				String toa = rs.getString("toa");
 				String cnt = rs.getString("cnt");
 				String avgcnt = rs.getString("avgcnt");
-				ta_thepreviousmonth.setText(total + "\t\t" + dc + "\t\t" + ofs + "\t\t" + st + "\t\t" + toa
-						+ "\t\t" + cnt + "\t\t" + avgcnt);
+				ta_thepreviousmonth.setText(total + "\t\t" + dc + "\t\t" + ofs + "\t\t" + st + "\t\t" + toa + "\t\t"
+						+ cnt + "\t\t" + avgcnt);
 			}
-			
-			//=========================
-			//조회당일현황 ((기본 시스템날짜 금일 
+
+			// =========================
+			// 조회당일현황 ((기본 시스템날짜 금일
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, nowString);
 			rs = ps.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
 				String total = rs.getString("money");
 				String cnt = rs.getString("cnt");
 				tf_total.setText(total);
 				tf_payment.setText(cnt);
 			}
-				
-			//주간매출현황 
-			
+
+			// 주간매출현황
+
 			// 한국 로케일 설정
 			Calendar cld2 = Calendar.getInstance(Locale.KOREA);
 
@@ -676,8 +689,7 @@ public class CafePosSystem_sale extends Panel  {
 
 			// 날짜 패턴 설정
 			SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREA);
-		
-			
+
 			// 주간 날짜 설정
 			for (int i = 0; i < 7; i++) {
 				weekend[i] = sdf3.format(cld2.getTime()); // 현재 날짜 저장
@@ -686,428 +698,400 @@ public class CafePosSystem_sale extends Panel  {
 			// 주간매출현황 월
 			ps.setString(1, weekend[0]);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-					String total = rs.getString("money");
-					tf_monday.setText(total);
+			while (rs.next()) {
+				String total = rs.getString("money");
+				tf_monday.setText(total);
 			}
 			// 주간매출현황 화
 			ps.setString(1, weekend[1]);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-					String total = rs.getString("money");
-					tf_tuesday.setText(total);
+			while (rs.next()) {
+				String total = rs.getString("money");
+				tf_tuesday.setText(total);
 			}
 			// 주간매출현황 수
 			ps.setString(1, weekend[2]);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-					String total = rs.getString("money");
-					tf_wednesday.setText(total);
+			while (rs.next()) {
+				String total = rs.getString("money");
+				tf_wednesday.setText(total);
 			}
 			// 주간매출현황 목
 			ps.setString(1, weekend[3]);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-					String total = rs.getString("money");
-					tf_thursday.setText(total);
+			while (rs.next()) {
+				String total = rs.getString("money");
+				tf_thursday.setText(total);
 			}
 			// 주간매출현황 금
 			ps.setString(1, weekend[4]);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-					String total = rs.getString("money");
-					tf_friday.setText(total);
+			while (rs.next()) {
+				String total = rs.getString("money");
+				tf_friday.setText(total);
 			}
 			// 주간매출현황 토
 			ps.setString(1, weekend[5]);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-					String total = rs.getString("money");
-					tf_saturday.setText(total);
+			while (rs.next()) {
+				String total = rs.getString("money");
+				tf_saturday.setText(total);
 			}
 			// 주간매출현황 일
 			ps.setString(1, weekend[6]);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-					String total = rs.getString("money");
-					tf_sunday.setText(total);
+			while (rs.next()) {
+				String total = rs.getString("money");
+				tf_sunday.setText(total);
 			}
-			
-			//금액대별매출 ((기본 금일
-				sql = "SELECT\r\n"
-						+ "    NVL(SUM(CASE WHEN sales.ocash > 0 AND sales.ocash <= 5000 THEN 1 ELSE 0 END),0) AS cnt_5000,  --5천원이하 만 \r\n"
-						+ "    NVL(SUM(CASE WHEN sales.ocash > 5000 AND sales.ocash <= 10000 THEN 1 ELSE 0 END),0) AS cnt_10000, --5이상만원이하 \r\n"
-						+ "    NVL(SUM(CASE WHEN sales.ocash > 10000 AND sales.ocash <= 30000 THEN 1 ELSE 0 END),0) AS cnt_30000, -- 만원이상 - 3만원이하 \r\n"
-						+ "    NVL(SUM(CASE WHEN sales.ocash > 30000 AND sales.ocash <= 50000 THEN 1 ELSE 0 END),0) AS cnt_50000, -- 3만원이상 5만원이하 \r\n"
-						+ "    NVL(SUM(CASE WHEN sales.ocash > 50000 THEN 1 ELSE 0 END),0) AS cnt_00000 --5만원 초과  \r\n"
-						+ "FROM sales\r\n"
-						+ "WHERE TRUNC(odate) = TO_DATE(?, 'YYYY-MM-DD')";
-				ps = conn.prepareStatement(sql);
-				ps.setString(1, nowString);
-				rs = ps.executeQuery();
-				while(rs.next()) {
-					String cnt_5000 = rs.getString("cnt_5000");
-					String cnt_10000 = rs.getString("cnt_10000");
-					String cnt_30000 = rs.getString("cnt_30000");
-					String cnt_50000 = rs.getString("cnt_50000");
-					String cnt_00000 = rs.getString("cnt_00000");
-					ta_notmorethan5000won.setText(cnt_5000);
-					ta_notmorethan10000won.setText(cnt_10000);
-					ta_notmorethan30000won.setText(cnt_30000);
-					ta_notmorethan50000won.setText(cnt_50000);
-					ta_notmorethan00000won.setText(cnt_00000);
-				}
-				
-			//메뉴별매출 (( 기본 금일 
-				sql = "SELECT \r\n"
-						+ "    menu.mno, \r\n"
-						+ "    menu.mname,         -- 메뉴 이름 \r\n"
-						+ "    NVL(SUM(sales.ocash), 0) AS sc   -- NULL 값이면 0으로 변환  \r\n"
-						+ "FROM menu   \r\n"
-						+ "LEFT JOIN sales ON menu.mno = sales.mno  \r\n"
-						+ "  AND TRUNC(sales.odate) = TO_DATE(?, 'YYYY-MM-DD')  --  특정 날짜 기준 매출 조회 \r\n"
-						+ "  AND sales.ocash >= 0  --  음수 결제 금액 제외  \r\n"
-						+ "GROUP BY menu.mno, menu.mname  ";
-				ps = conn.prepareStatement(sql);
-				ps.setString(1, nowString);
-				rs = ps.executeQuery();
-				while (rs.next()) { // 여러 개의 메뉴 데이터를 확인해야 함
-					String mno = rs.getString("mno");
-					String mname = rs.getString("mname");
-					String sc = rs.getString("sc"); // 매출 금액 가져오기
 
-					if (mno.equals("1")) {
-						ta_lb_menu1.setText(sc);
-					} else if (mno.equals("2")) {
-						ta_lb_menu2.setText(sc);
-					} else if (mno.equals("3")) {
-						ta_lb_menu3.setText(sc);
-					} else if (mno.equals("4")) {
-						ta_lb_menu4.setText(sc);
-					} else if (mno.equals("5")) {
-						ta_lb_menu5.setText(sc);
-					} else if (mno.equals("6")) {
-						ta_lb_menu6.setText(sc);
-					}
+			// 금액대별매출 ((기본 금일
+			sql = "SELECT\r\n"
+					+ "    NVL(SUM(CASE WHEN sales.ocash > 0 AND sales.ocash <= 5000 THEN 1 ELSE 0 END),0) AS cnt_5000,  --5천원이하 만 \r\n"
+					+ "    NVL(SUM(CASE WHEN sales.ocash > 5000 AND sales.ocash <= 10000 THEN 1 ELSE 0 END),0) AS cnt_10000, --5이상만원이하 \r\n"
+					+ "    NVL(SUM(CASE WHEN sales.ocash > 10000 AND sales.ocash <= 30000 THEN 1 ELSE 0 END),0) AS cnt_30000, -- 만원이상 - 3만원이하 \r\n"
+					+ "    NVL(SUM(CASE WHEN sales.ocash > 30000 AND sales.ocash <= 50000 THEN 1 ELSE 0 END),0) AS cnt_50000, -- 3만원이상 5만원이하 \r\n"
+					+ "    NVL(SUM(CASE WHEN sales.ocash > 50000 THEN 1 ELSE 0 END),0) AS cnt_00000 --5만원 초과  \r\n"
+					+ "FROM sales\r\n" + "WHERE TRUNC(odate) = TO_DATE(?, 'YYYY-MM-DD')";
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, nowString);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				String cnt_5000 = rs.getString("cnt_5000");
+				String cnt_10000 = rs.getString("cnt_10000");
+				String cnt_30000 = rs.getString("cnt_30000");
+				String cnt_50000 = rs.getString("cnt_50000");
+				String cnt_00000 = rs.getString("cnt_00000");
+				ta_notmorethan5000won.setText(cnt_5000);
+				ta_notmorethan10000won.setText(cnt_10000);
+				ta_notmorethan30000won.setText(cnt_30000);
+				ta_notmorethan50000won.setText(cnt_50000);
+				ta_notmorethan00000won.setText(cnt_00000);
+			}
+
+			// 메뉴별매출 (( 기본 금일
+			sql = "SELECT \r\n" + "    menu.mno, \r\n" + "    menu.mname,         -- 메뉴 이름 \r\n"
+					+ "    NVL(SUM(sales.ocash), 0) AS sc   -- NULL 값이면 0으로 변환  \r\n" + "FROM menu   \r\n"
+					+ "LEFT JOIN sales ON menu.mno = sales.mno  \r\n"
+					+ "  AND TRUNC(sales.odate) = TO_DATE(?, 'YYYY-MM-DD')  --  특정 날짜 기준 매출 조회 \r\n"
+					+ "  AND sales.ocash >= 0  --  음수 결제 금액 제외  \r\n" + "GROUP BY menu.mno, menu.mname  ";
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, nowString);
+			rs = ps.executeQuery();
+			while (rs.next()) { // 여러 개의 메뉴 데이터를 확인해야 함
+				String mno = rs.getString("mno");
+				String mname = rs.getString("mname");
+				String sc = rs.getString("sc"); // 매출 금액 가져오기
+
+				if (mno.equals("1")) {
+					ta_lb_menu1.setText(sc);
+				} else if (mno.equals("2")) {
+					ta_lb_menu2.setText(sc);
+				} else if (mno.equals("3")) {
+					ta_lb_menu3.setText(sc);
+				} else if (mno.equals("4")) {
+					ta_lb_menu4.setText(sc);
+				} else if (mno.equals("5")) {
+					ta_lb_menu5.setText(sc);
+				} else if (mno.equals("6")) {
+					ta_lb_menu6.setText(sc);
 				}
-				
-				//금고현황
-				sql  = "select * from bank";
-				ps = conn.prepareStatement(sql);
-				rs = ps.executeQuery();
-				while(rs.next()) {
-					String moneyy = rs.getString("money");
-					ta_treasurybalance.setText(moneyy);
-				}
-				
-				//최근결제내역 
-				try {
-					listset();
-					
-				}catch(Exception e10) {
-					e10.printStackTrace();
-				}
-			//========================================================================//
-				//결제취소 ActionLisner 
-				lb_cancellation_of_payment.addActionListener(new ActionListener() {
-					
-					@Override
-					public void actionPerformed(ActionEvent e) {
+			}
+
+			// 금고현황
+			sql = "select * from bank";
+			ps = conn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				String moneyy = rs.getString("money");
+				ta_treasurybalance.setText(moneyy);
+			}
+
+			// 최근결제내역
+			try {
+				listset();
+
+			} catch (Exception e10) {
+				e10.printStackTrace();
+			}
+			// ========================================================================//
+			// 결제취소 ActionLisner
+			lb_cancellation_of_payment.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					try {
+						String sql20 = "UPDATE sales\r\n" + "SET ocash = -ABS(ocash)  -- 결제 금액을 음수로 변환\r\n"
+								+ "WHERE mno = (SELECT mno FROM menu WHERE mname = ?)\r\n"
+								+ "AND odate = TO_DATE(?, 'YYYY-MM-DD HH24:MI:SS')\r\n"
+								+ "AND gusno = ?  -- 회원번호 동일한 경우만 업데이트\r\n"
+								+ "AND ocash > 0  -- 이미 음수인 경우 중복 업데이트 방지\r\n";
+
+						String ama = li_employee_list.getSelectedItem();
+						System.out.println(ama);
+						String[] part = ama.trim().split("\\s+");
+
+						String gusno1 = part[0]; // 회원번호
+						if (gusno1.equals("0")) {
+							String guname1 = "비회원";
+						} else {
+							String guname1 = part[1];
+						} // 회원이름
+						String menuname1 = part[2]; // 메뉴명
+						String ocount1 = part[3]; // 카운트개수
+						String ocash1 = part[4]; // 결제한금액
+						String opoint1 = part[5]; // 사용포인트
+						String orderdate = part[6] + " " + part[7]; // 시간
+
+						int ocash11 = Integer.parseInt(ocash1);
+						// 현재금고잔액 불러오기
+						int monnnney = 0;
+						sql = "SELECT * FROM bank";
+						ps = conn.prepareStatement(sql);
+						rs = ps.executeQuery();
+						while (rs.next()) {
+							monnnney = rs.getInt("money");
+						}
+
+						ocash11 = Integer.parseInt(ocash1);
+
+						if (monnnney > ocash11) {
+
+							// 결제 취소 업데이트
+							PreparedStatement ps11 = conn.prepareStatement(sql20);
+							ps11.setString(1, menuname1);
+							ps11.setString(2, orderdate);
+							ps11.setString(3, gusno1);
+							int update = ps11.executeUpdate();
+							puw.showPopUp("결제취소", "결제취소 완료 되었습니다", "취소금액:" + ocash11);
+							System.out.println("결제 " + update + "건 취소 완료");
+
+							// 금고 결제취소 한건에 대한 결제값 빼주기 회원일때
+							if (!gusno1.equals("0")) {
+
+								String sql8 = "UPDATE bank\r\n" + "SET money = money + (\r\n"
+										+ "    SELECT ocash  -- 이미 음수 값이므로 더하기로 차감 효과\r\n" + "    FROM sales\r\n"
+										+ "    WHERE mno = (SELECT mno FROM menu WHERE mname = ?)  -- 메뉴명으로 검색\r\n"
+										+ "    AND odate = TO_DATE(?, 'YYYY-MM-DD HH24:MI:SS')  -- 주문 날짜/시간 일치\r\n"
+										+ "    AND gusno = ?  -- 회원번호 동일\r\n" + "    AND ocash < 0  -- 취소된 결제만 반영\r\n"
+										+ ")\r\n" + "WHERE ROWNUM = 1";
+								PreparedStatement ps8 = conn.prepareStatement(sql8);
+								ps8.setString(1, menuname1);
+								ps8.setString(2, orderdate);
+								ps8.setString(3, gusno1);
+								int update2 = ps8.executeUpdate();
+								System.out.println(update2 + "건 취소완료 금고" + ocash1 + "원 차감 완료");
+								// 회원 누적금액 차감
+								String sql10 = "UPDATE guest\r\n" + "SET gussale = gussale - (\r\n"
+										+ "    SELECT ABS(ocash)  -- 사용한 포인트만큼 차감\r\n" + "    FROM sales\r\n"
+										+ "    WHERE mno = (SELECT mno FROM menu WHERE mname = ?)  -- 특정 메뉴명\r\n"
+										+ "    AND odate = TO_DATE(?, 'YYYY-MM-DD HH24:MI:SS')  -- 특정 주문 시간\r\n"
+										+ "    AND gusno = ?  -- 특정 회원번호          \r\n"
+										+ "    AND ocash < 0  -- 사용한 포인트가 있는 경우만\r\n" + ")\r\n"
+										+ "WHERE gusno = ?  -- 특정 회원의 누적 매출에서 차감";
+
+								PreparedStatement ps10 = conn.prepareStatement(sql10);
+								ps10.setString(1, menuname1);
+								ps10.setString(2, orderdate);
+								ps10.setString(3, gusno1);
+								ps10.setString(4, gusno1);
+								int update3 = ps10.executeUpdate();
+								System.out.println("회원 누적 금액" + ocash1 + "차감 완료");
+
+								// 인터넷뱅킹 insert
+								Calendar now = Calendar.getInstance();
+								java.sql.Timestamp jst3 = new java.sql.Timestamp(now.getTimeInMillis());
+								// 현재금고잔액 불러오기
+
+								sql = "SELECT * FROM bank";
+								ps = conn.prepareStatement(sql);
+								rs = ps.executeQuery();
+								while (rs.next()) {
+									monnnney = rs.getInt("money");
+								}
+								ocash11 = Integer.parseInt(ocash1);
+								// 인터넷뱅킹 insert
+								// 번호 "현재시각" "출금" "환불" ocash1 금고잔액
+								sql = "INSERT INTO banking VALUES(sq_banking_bno.nextval,?,?,?,?)";
+								ps = conn.prepareStatement(sql);
+								ps.setString(1, "결제취소");
+								ps.setInt(2, -ocash11);
+								ps.setInt(3, monnnney);
+								ps.setTimestamp(4, jst3);
+								int update4 = ps.executeUpdate();
+								System.out.println(update4 + "건 insert완료 ");
+
+								// 비회원 일때 금고만 차감
+							} else if (gusno1.equals("0")) {
+
+								String sql9 = "UPDATE bank\r\n" + "SET money = money + (\r\n"
+										+ "    SELECT ocash  -- 이미 음수 값이므로 더하기로 차감 효과\r\n" + "    FROM sales\r\n"
+										+ "    WHERE mno = (SELECT mno FROM menu WHERE mname = ?)  -- 메뉴명으로 검색\r\n"
+										+ "    AND odate = TO_DATE(?, 'YYYY-MM-DD HH24:MI:SS')  -- 주문 날짜/시간 일치\r\n"
+										+ "    AND gusno = ?  -- 회원번호 동일\r\n" + "    AND ocash < 0  -- 취소된 결제만 반영\r\n"
+										+ ")\r\n" + "WHERE ROWNUM = 1";
+								PreparedStatement ps9 = conn.prepareStatement(sql9);
+								ps9.setString(1, menuname1);
+								ps9.setString(2, orderdate);
+								ps9.setString(3, gusno1);
+								int update2 = ps9.executeUpdate();
+								puw.showPopUp("결제취소", "결제취소 완료 되었습니다", "취소금액:" + ocash11);
+
+								// 인터넷뱅킹 insert
+								Calendar now = Calendar.getInstance();
+								java.sql.Timestamp jst3 = new java.sql.Timestamp(now.getTimeInMillis());
+								// 현재금고잔액 불러오기
+								sql = "SELECT * FROM bank";
+								ps = conn.prepareStatement(sql);
+								rs = ps.executeQuery();
+								while (rs.next()) {
+									monnnney = rs.getInt("money");
+								}
+
+								// 인터넷뱅킹 취소내역 출력
+								// 현재금고잔액 불러오기
+								sql = "SELECT * FROM bank";
+								ps = conn.prepareStatement(sql);
+								rs = ps.executeQuery();
+								while (rs.next()) {
+									monnnney = rs.getInt("money");
+								}
+								ocash11 = Integer.parseInt(ocash1);
+								// 인터넷뱅킹 insert
+								// 번호 "현재시각" "출금" "환불" ocash1 금고잔액
+								sql = "INSERT INTO banking VALUES(sq_banking_bno.nextval,?,?,?,?)";
+								ps = conn.prepareStatement(sql);
+								ps.setString(1, "결제취소");
+								ps.setInt(2, -ocash11);
+								ps.setInt(3, monnnney);
+								ps.setString(4, nowString);
+								int update3 = ps.executeUpdate();
+								System.out.println(update3 + "건 insert완료 ");
+							}
+
+						} else {
+							puw.showPopUp("결제취소", "잔고가 부족합니다", "현재잔고:" + monnnney);
+						}
 						try {
-							String	sql20 = "UPDATE sales\r\n"
-									+ "SET ocash = -ABS(ocash)  -- 결제 금액을 음수로 변환\r\n"
-									+ "WHERE mno = (SELECT mno FROM menu WHERE mname = ?)\r\n"
-									+ "AND odate = TO_DATE(?, 'YYYY-MM-DD HH24:MI:SS')\r\n"
-									+ "AND gusno = ?  -- 회원번호 동일한 경우만 업데이트\r\n"
-									+ "AND ocash > 0  -- 이미 음수인 경우 중복 업데이트 방지\r\n";
-							
-							String ama = li_employee_list.getSelectedItem();
-							System.out.println(ama);
-							String [] part = ama.trim().split("\\s+");
-							
-							String gusno1 = part [0];   //회원번호
-							if(gusno1.equals("0")) {	
-								String guname1 = "비회원";
-							}else { String guname1 = part [1]; }//회원이름
-							String menuname1 = part [2]; //메뉴명 
-							String ocount1 = part [3];    //카운트개수
-							String ocash1 = part [4];	//결제한금액
-							String opoint1 = part [5];	//사용포인트
-							String orderdate = part[6] +" "+part[7];  //시간
-							
-							
-							int ocash11 = Integer.parseInt(ocash1);
-							//현재금고잔액 불러오기 
-							int monnnney =0;
-							sql  ="SELECT * FROM bank";
-							ps = conn.prepareStatement(sql);
-							rs = ps.executeQuery();
-							while(rs.next()) {
-								monnnney = rs.getInt("money");
-							}
-							
-							ocash11 =Integer.parseInt(ocash1);
-							
-							if(monnnney > ocash11) {
-							
-								//결제 취소 업데이트 
-								PreparedStatement	ps11 = conn.prepareStatement(sql20);
-								ps11.setString(1, menuname1);
-								ps11.setString(2, orderdate);
-								ps11.setString(3, gusno1);
-								int update = ps11.executeUpdate();
-								puw.showPopUp("결제취소", "결제취소 완료 되었습니다","취소금액:"+ocash11);
-								System.out.println("결제 "+update+"건 취소 완료");
-								
-								// 금고 결제취소 한건에 대한 결제값 빼주기 회원일때 
-								if(!gusno1.equals("0")) {
-									
-									String sql8 = "UPDATE bank\r\n"
-											+ "SET money = money + (\r\n"
-											+ "    SELECT ocash  -- 이미 음수 값이므로 더하기로 차감 효과\r\n"
-											+ "    FROM sales\r\n"
-											+ "    WHERE mno = (SELECT mno FROM menu WHERE mname = ?)  -- 메뉴명으로 검색\r\n"
-											+ "    AND odate = TO_DATE(?, 'YYYY-MM-DD HH24:MI:SS')  -- 주문 날짜/시간 일치\r\n"
-											+ "    AND gusno = ?  -- 회원번호 동일\r\n"
-											+ "    AND ocash < 0  -- 취소된 결제만 반영\r\n"
-											+ ")\r\n"
-											+ "WHERE ROWNUM = 1";
-									PreparedStatement ps8 = conn.prepareStatement(sql8);
-									ps8.setString(1, menuname1);
-									ps8.setString(2, orderdate);
-									ps8.setString(3, gusno1);
-									int update2 = ps8.executeUpdate();
-									System.out.println(update2+"건 취소완료 금고"+ocash1+"원 차감 완료");
-									// 회원 누적금액 차감
-									String sql10 = "UPDATE guest\r\n"
-											+ "SET gussale = gussale - (\r\n"
-											+ "    SELECT ABS(ocash)  -- 사용한 포인트만큼 차감\r\n"
-											+ "    FROM sales\r\n"
-											+ "    WHERE mno = (SELECT mno FROM menu WHERE mname = ?)  -- 특정 메뉴명\r\n"
-											+ "    AND odate = TO_DATE(?, 'YYYY-MM-DD HH24:MI:SS')  -- 특정 주문 시간\r\n"
-											+ "    AND gusno = ?  -- 특정 회원번호          \r\n"
-											+ "    AND ocash < 0  -- 사용한 포인트가 있는 경우만\r\n"
-											+ ")\r\n"
-											+ "WHERE gusno = ?  -- 특정 회원의 누적 매출에서 차감";
-									
-									PreparedStatement ps10 = conn.prepareStatement(sql10);
-									ps10.setString(1,menuname1 );
-									ps10.setString(2,orderdate );
-									ps10.setString(3, gusno1);
-									ps10.setString(4, gusno1);
-									int update3 = ps10.executeUpdate();
-									System.out.println("회원 누적 금액"+ocash1+"차감 완료");		
-									
-									//인터넷뱅킹 insert 
-									Calendar now = Calendar.getInstance();
-									java.sql.Timestamp jst3 = new java.sql.Timestamp(now.getTimeInMillis());
-									//현재금고잔액 불러오기 
-									
-									sql  ="SELECT * FROM bank";
-									ps = conn.prepareStatement(sql);
-									rs = ps.executeQuery();
-									while(rs.next()) {
-										monnnney = rs.getInt("money");
-									}
-									ocash11 =Integer.parseInt(ocash1);
-									// 인터넷뱅킹 insert
-									// 번호 "현재시각" "출금" "환불" ocash1 금고잔액 
-									sql = "INSERT INTO banking VALUES(sq_banking_bno.nextval,?,?,?,?)";
-									ps = conn.prepareStatement(sql);
-									ps.setString(1, "결제취소");
-									ps.setInt(2, -ocash11);
-									ps.setInt(3, monnnney);
-									ps.setTimestamp(4, jst3);
-									int update4 = ps.executeUpdate();
-									System.out.println(update4+"건 insert완료 ");
-											
-								// 비회원 일때 금고만 차감 
-								}else if(gusno1.equals("0")) {
-									
-									String sql9 = "UPDATE bank\r\n"
-											+ "SET money = money + (\r\n"
-											+ "    SELECT ocash  -- 이미 음수 값이므로 더하기로 차감 효과\r\n"
-											+ "    FROM sales\r\n"
-											+ "    WHERE mno = (SELECT mno FROM menu WHERE mname = ?)  -- 메뉴명으로 검색\r\n"
-											+ "    AND odate = TO_DATE(?, 'YYYY-MM-DD HH24:MI:SS')  -- 주문 날짜/시간 일치\r\n"
-											+ "    AND gusno = ?  -- 회원번호 동일\r\n"
-											+ "    AND ocash < 0  -- 취소된 결제만 반영\r\n"
-											+ ")\r\n"
-											+ "WHERE ROWNUM = 1";
-									PreparedStatement ps9 = conn.prepareStatement(sql9);
-									ps9.setString(1, menuname1);
-									ps9.setString(2, orderdate);
-									ps9.setString(3, gusno1);
-									int update2 = ps9.executeUpdate();
-									puw.showPopUp("결제취소", "결제취소 완료 되었습니다","취소금액:"+ocash11);
-									
-									//인터넷뱅킹 insert 
-									Calendar now = Calendar.getInstance();
-									java.sql.Timestamp jst3 = new java.sql.Timestamp(now.getTimeInMillis());
-									//현재금고잔액 불러오기 
-									sql  ="SELECT * FROM bank";
-									ps = conn.prepareStatement(sql);
-									rs = ps.executeQuery();
-									while(rs.next()) {
-										monnnney = rs.getInt("money");
-									}
-									
-									// 인터넷뱅킹 취소내역 출력 
-									//현재금고잔액 불러오기 
-									sql  ="SELECT * FROM bank";
-									ps = conn.prepareStatement(sql);
-									rs = ps.executeQuery();
-									while(rs.next()) {
-										monnnney = rs.getInt("money");
-									}
-									ocash11 =Integer.parseInt(ocash1);
-									// 인터넷뱅킹 insert
-									// 번호 "현재시각" "출금" "환불" ocash1 금고잔액 
-									sql = "INSERT INTO banking VALUES(sq_banking_bno.nextval,?,?,?,?)";
-									ps = conn.prepareStatement(sql);
-									ps.setString(1, "결제취소");
-									ps.setInt(2, -ocash11);
-									ps.setInt(3, monnnney);
-									ps.setString(4, nowString);
-									int update3 = ps.executeUpdate();
-									System.out.println(update3+"건 insert완료 ");
-								}
-								
-						}else {
-							puw.showPopUp("결제취소", "잔고가 부족합니다","현재잔고:"+monnnney);
-						}	
-							try {
-								listset();
-								
-							}catch(Exception e10) {
-								e10.printStackTrace();
-							}
-						
-						}catch(SQLException e1) {
-						
-						}
-					}
-				
-				});
-				
-			//========================================================================//
-				//조회 ActionLisner
-				bt_inquiry.addActionListener(new ActionListener() {
-					
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						
-						//선택 날짜 String 으로변환해서 가져옴 
-						//조회당일현황 조회시 시 해당날짜 정보 출력 \
-						try{
-							String si = c_choice2.getSelectedItem();
-							String spl2 = "SELECT    \r\n"
-									+ "    CASE WHEN money IS NULL THEN 0 ELSE money END AS money, \r\n"
-									+ "    CASE WHEN dc IS NULL THEN 0 ELSE dc END AS dc,  \r\n"
-									+ "    CASE WHEN ofs IS NULL THEN 0 ELSE ofs END AS ofs,\r\n"
-									+ "    CASE WHEN st IS NULL THEN 0 ELSE st END AS st,\r\n"
-									+ "    CASE WHEN toa IS NULL THEN 0 ELSE toa END AS toa,\r\n"
-									+ "    CASE WHEN cnt IS NULL THEN 0 ELSE cnt END AS cnt,\r\n"
-									+ "    CASE \r\n"
-									+ "        WHEN cnt > 0 THEN ROUND (money / cnt)   -- 결제단가  \r\n"
-									+ "        ELSE 0 \r\n"
-									+ "    END AS avgcnt \r\n"
-									+ "FROM (\r\n"
-									+ "    SELECT \r\n"
-									+ "        SUM(ocash) AS money, -- 총매출액 (부가세 제외한 순매출액)  \r\n"
-									+ "        SUM(opoint) AS dc,  -- 할인금액 (포인트 사용 금액 포함)  \r\n"
-									+ "        SUM(ocash) - SUM(opoint) AS ofs, -- 매출금액 (총매출액 - 할인금액)   \r\n"
-									+ "        SUM(ocash) * 0.9 AS st, -- 부가세 (총매출액 * 0.9)  \r\n"
-									+ "        SUM(ocash) - SUM(opoint) + (SUM(ocash) * 0.9) AS toa, -- 최종 결제금액  \r\n"
-									+ "        COUNT(DISTINCT TO_CHAR(odate, 'YYYY-MM-DD HH24:MI:SS')) AS cnt  -- 주문 건수 (날짜, 시, 분, 초까지 동일한 주문은 1건으로 처리)  \r\n"
-									+ "    FROM sales\r\n"
-									+ "    WHERE TRUNC(sales.odate) = TO_DATE(?, 'YYYY-MM-DD')\r\n"
-									+ "        AND ocash >= 0  -- 해당 날짜 검색 (년-월-일 기준)  \r\n"
-									+ ")\r\n"
-									+ "";
-							
-						PreparedStatement ps2 = conn.prepareStatement(spl2);
-							ps2.setString(1, si);
-						ResultSet	rs2 = ps2.executeQuery();
-							while(rs2.next()) {
-								String total = rs2.getString("money");
-								String cnt = rs2.getString("cnt");
-								tf_payment.setText(total);
-								tf_total.setText(cnt);
-							}
-							
-							//금액대별매출 조회시 
-							sql = "SELECT\r\n"
-									+ "    NVL(SUM(CASE WHEN sales.ocash > 0 AND sales.ocash <= 5000 THEN 1 ELSE 0 END),0) AS cnt_5000,  --5천원이하 만 \r\n"
-									+ "    NVL(SUM(CASE WHEN sales.ocash > 5000 AND sales.ocash <= 10000 THEN 1 ELSE 0 END),0) AS cnt_10000, --5이상만원이하 \r\n"
-									+ "    NVL(SUM(CASE WHEN sales.ocash > 10000 AND sales.ocash <= 30000 THEN 1 ELSE 0 END),0) AS cnt_30000, -- 만원이상 - 3만원이하 \r\n"
-									+ "    NVL(SUM(CASE WHEN sales.ocash > 30000 AND sales.ocash <= 50000 THEN 1 ELSE 0 END),0) AS cnt_50000, -- 3만원이상 5만원이하 \r\n"
-									+ "    NVL(SUM(CASE WHEN sales.ocash > 50000 THEN 1 ELSE 0 END),0) AS cnt_00000 --5만원 초과  \r\n"
-									+ "FROM sales\r\n"
-									+ "WHERE TRUNC(odate) = TO_DATE(?, 'YYYY-MM-DD')";
-							ps = conn.prepareStatement(sql);
-							ps.setString(1, si);
-							rs = ps.executeQuery();
-							while(rs.next()) {
-								String cnt_5000 = rs.getString("cnt_5000");
-								String cnt_10000 = rs.getString("cnt_10000");
-								String cnt_30000 = rs.getString("cnt_30000");
-								String cnt_50000 = rs.getString("cnt_50000");
-								String cnt_00000 = rs.getString("cnt_00000");
-								ta_notmorethan5000won.setText(cnt_5000);
-								ta_notmorethan10000won.setText(cnt_10000);
-								ta_notmorethan30000won.setText(cnt_30000);
-								ta_notmorethan50000won.setText(cnt_50000);
-								ta_notmorethan00000won.setText(cnt_00000);
-							}
-							
-							//메뉴별매출  조회시 
-							sql = "SELECT \r\n"
-									+ "    menu.mno, \r\n"
-									+ "    menu.mname,         -- 메뉴 이름 \r\n"
-									+ "    NVL(SUM(sales.ocash), 0) AS sc   -- NULL 값이면 0으로 변환  \r\n"
-									+ "FROM menu   \r\n"
-									+ "LEFT JOIN sales ON menu.mno = sales.mno  \r\n"
-									+ "  AND TRUNC(sales.odate) = TO_DATE(?, 'YYYY-MM-DD')  --  특정 날짜 기준 매출 조회 \r\n"
-									+ "  AND sales.ocash >= 0  --  음수 결제 금액 제외  \r\n"
-									+ "GROUP BY menu.mno, menu.mname  ";
-							ps = conn.prepareStatement(sql);
-							ps.setString(1, si);
-							rs = ps.executeQuery();
-							while (rs.next()) { // 여러 개의 메뉴 데이터를 확인해야 함
-								String mno = rs.getString("mno");
-								String mname = rs.getString("mname");
-								String sc = rs.getString("sc"); // 매출 금액 가져오기
+							listset();
 
-								if (mno.equals("1")) {
-									ta_lb_menu1.setText(sc);
-								} else if (mno.equals("2")) {
-									ta_lb_menu2.setText(sc);
-								} else if (mno.equals("3")) {
-									ta_lb_menu3.setText(sc);
-								} else if (mno.equals("4")) {
-									ta_lb_menu4.setText(sc);
-								} else if (mno.equals("5")) {
-									ta_lb_menu5.setText(sc);
-								} else if (mno.equals("6")) {
-									ta_lb_menu6.setText(sc);
-								}
-							}
-							
-						}catch(SQLException e1) {
-							
+						} catch (Exception e10) {
+							e10.printStackTrace();
 						}
-						
+
+					} catch (SQLException e1) {
+
 					}
-				});
-			
-		}catch (SQLException e) {
+				}
+
+			});
+
+			// ========================================================================//
+			// 조회 ActionLisner
+			bt_inquiry.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+
+					// 선택 날짜 String 으로변환해서 가져옴
+					// 조회당일현황 조회시 시 해당날짜 정보 출력 \
+					try {
+						String si = c_choice2.getSelectedItem();
+						String spl2 = "SELECT    \r\n"
+								+ "    CASE WHEN money IS NULL THEN 0 ELSE money END AS money, \r\n"
+								+ "    CASE WHEN dc IS NULL THEN 0 ELSE dc END AS dc,  \r\n"
+								+ "    CASE WHEN ofs IS NULL THEN 0 ELSE ofs END AS ofs,\r\n"
+								+ "    CASE WHEN st IS NULL THEN 0 ELSE st END AS st,\r\n"
+								+ "    CASE WHEN toa IS NULL THEN 0 ELSE toa END AS toa,\r\n"
+								+ "    CASE WHEN cnt IS NULL THEN 0 ELSE cnt END AS cnt,\r\n" + "    CASE \r\n"
+								+ "        WHEN cnt > 0 THEN ROUND (money / cnt)   -- 결제단가  \r\n"
+								+ "        ELSE 0 \r\n" + "    END AS avgcnt \r\n" + "FROM (\r\n" + "    SELECT \r\n"
+								+ "        SUM(ocash) AS money, -- 총매출액 (부가세 제외한 순매출액)  \r\n"
+								+ "        SUM(opoint) AS dc,  -- 할인금액 (포인트 사용 금액 포함)  \r\n"
+								+ "        SUM(ocash) - SUM(opoint) AS ofs, -- 매출금액 (총매출액 - 할인금액)   \r\n"
+								+ "        SUM(ocash) * 0.9 AS st, -- 부가세 (총매출액 * 0.9)  \r\n"
+								+ "        SUM(ocash) - SUM(opoint) + (SUM(ocash) * 0.9) AS toa, -- 최종 결제금액  \r\n"
+								+ "        COUNT(DISTINCT TO_CHAR(odate, 'YYYY-MM-DD HH24:MI:SS')) AS cnt  -- 주문 건수 (날짜, 시, 분, 초까지 동일한 주문은 1건으로 처리)  \r\n"
+								+ "    FROM sales\r\n" + "    WHERE TRUNC(sales.odate) = TO_DATE(?, 'YYYY-MM-DD')\r\n"
+								+ "        AND ocash >= 0  -- 해당 날짜 검색 (년-월-일 기준)  \r\n" + ")\r\n" + "";
+
+						PreparedStatement ps2 = conn.prepareStatement(spl2);
+						ps2.setString(1, si);
+						ResultSet rs2 = ps2.executeQuery();
+						while (rs2.next()) {
+							String total = rs2.getString("money");
+							String cnt = rs2.getString("cnt");
+							tf_total.setText(total);
+							tf_payment.setText(cnt);
+						}
+
+						// 금액대별매출 조회시
+						sql = "SELECT\r\n"
+								+ "    NVL(SUM(CASE WHEN sales.ocash > 0 AND sales.ocash <= 5000 THEN 1 ELSE 0 END),0) AS cnt_5000,  --5천원이하 만 \r\n"
+								+ "    NVL(SUM(CASE WHEN sales.ocash > 5000 AND sales.ocash <= 10000 THEN 1 ELSE 0 END),0) AS cnt_10000, --5이상만원이하 \r\n"
+								+ "    NVL(SUM(CASE WHEN sales.ocash > 10000 AND sales.ocash <= 30000 THEN 1 ELSE 0 END),0) AS cnt_30000, -- 만원이상 - 3만원이하 \r\n"
+								+ "    NVL(SUM(CASE WHEN sales.ocash > 30000 AND sales.ocash <= 50000 THEN 1 ELSE 0 END),0) AS cnt_50000, -- 3만원이상 5만원이하 \r\n"
+								+ "    NVL(SUM(CASE WHEN sales.ocash > 50000 THEN 1 ELSE 0 END),0) AS cnt_00000 --5만원 초과  \r\n"
+								+ "FROM sales\r\n" + "WHERE TRUNC(odate) = TO_DATE(?, 'YYYY-MM-DD')";
+						ps = conn.prepareStatement(sql);
+						ps.setString(1, si);
+						rs = ps.executeQuery();
+						while (rs.next()) {
+							String cnt_5000 = rs.getString("cnt_5000");
+							String cnt_10000 = rs.getString("cnt_10000");
+							String cnt_30000 = rs.getString("cnt_30000");
+							String cnt_50000 = rs.getString("cnt_50000");
+							String cnt_00000 = rs.getString("cnt_00000");
+							ta_notmorethan5000won.setText(cnt_5000);
+							ta_notmorethan10000won.setText(cnt_10000);
+							ta_notmorethan30000won.setText(cnt_30000);
+							ta_notmorethan50000won.setText(cnt_50000);
+							ta_notmorethan00000won.setText(cnt_00000);
+						}
+
+						// 메뉴별매출 조회시
+						sql = "SELECT \r\n" + "    menu.mno, \r\n" + "    menu.mname,         -- 메뉴 이름 \r\n"
+								+ "    NVL(SUM(sales.ocash), 0) AS sc   -- NULL 값이면 0으로 변환  \r\n" + "FROM menu   \r\n"
+								+ "LEFT JOIN sales ON menu.mno = sales.mno  \r\n"
+								+ "  AND TRUNC(sales.odate) = TO_DATE(?, 'YYYY-MM-DD')  --  특정 날짜 기준 매출 조회 \r\n"
+								+ "  AND sales.ocash >= 0  --  음수 결제 금액 제외  \r\n" + "GROUP BY menu.mno, menu.mname  ";
+						ps = conn.prepareStatement(sql);
+						ps.setString(1, si);
+						rs = ps.executeQuery();
+						while (rs.next()) { // 여러 개의 메뉴 데이터를 확인해야 함
+							String mno = rs.getString("mno");
+							String mname = rs.getString("mname");
+							String sc = rs.getString("sc"); // 매출 금액 가져오기
+
+							if (mno.equals("1")) {
+								ta_lb_menu1.setText(sc);
+							} else if (mno.equals("2")) {
+								ta_lb_menu2.setText(sc);
+							} else if (mno.equals("3")) {
+								ta_lb_menu3.setText(sc);
+							} else if (mno.equals("4")) {
+								ta_lb_menu4.setText(sc);
+							} else if (mno.equals("5")) {
+								ta_lb_menu5.setText(sc);
+							} else if (mno.equals("6")) {
+								ta_lb_menu6.setText(sc);
+							}
+						}
+
+					} catch (SQLException e1) {
+
+					}
+
+				}
+			});
+
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		// 메뉴총괄표  출력 
-		
+		// 메뉴총괄표 출력
 
 	}
+
 	public void salesByMenu() {
 
 		Font f_title = new Font("Default Font", Font.BOLD, 15);
@@ -1181,47 +1165,40 @@ public class CafePosSystem_sale extends Panel  {
 		ta_salesbymenu.setEditable(false);
 		p_table_south.add(ta_salesbymenu, BorderLayout.CENTER);
 
-		
 		menuTransitionAction();
-		
-		try{
-			
-			//왼쪽 오래된 날짜 우선 
-			sql = "select distinct\r\n"
-					+ "    to_char(odate,'YYYY-MM-DD')as day\r\n"
-					+ "from sales\r\n"
+
+		try {
+
+			// 왼쪽 오래된 날짜 우선
+			sql = "select distinct\r\n" + "    to_char(odate,'YYYY-MM-DD')as day\r\n" + "from sales\r\n"
 					+ "order by day asc";
 			ps = conn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-					String ymd = rs.getString("day");
-					ci_choice4.add(ymd);
+			while (rs.next()) {
+				String ymd = rs.getString("day");
+				ci_choice4.add(ymd);
 			}
-			
-			//오른쪽 최근날짜 우선 
-			sql = "select distinct\r\n"
-					+ "    to_char(odate,'YYYY-MM-DD')as day\r\n"
-					+ "from sales\r\n"
+
+			// 오른쪽 최근날짜 우선
+			sql = "select distinct\r\n" + "    to_char(odate,'YYYY-MM-DD')as day\r\n" + "from sales\r\n"
 					+ "order by day desc";
 			ps = conn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-					String ymd = rs.getString("day");
-					ci_choice5.add(ymd);
+			while (rs.next()) {
+				String ymd = rs.getString("day");
+				ci_choice5.add(ymd);
 			}
-			
-			// 금일 날짜 불러 오기 
+
+			// 금일 날짜 불러 오기
 			// 날짜 패턴 설정
 			String pattern1 = "yyyy-MM-dd";
 			SimpleDateFormat sdf1 = new SimpleDateFormat(pattern1);
 			// 현재 날짜 가져오기
 			Date now = new Date();
 			String nowString = sdf1.format(now);
-			
-			//메뉴별 판매 현황 1번 부터 ~
-			sql = "SELECT \r\n"
-					+ "    menu.mno AS mno, -- 메뉴번호  \r\n"
-					+ "    menu.mname AS mname,  --메뉴명  \r\n"
+
+			// 메뉴별 판매 현황 1번 부터 ~
+			sql = "SELECT \r\n" + "    menu.mno AS mno, -- 메뉴번호  \r\n" + "    menu.mname AS mname,  --메뉴명  \r\n"
 					+ "    COALESCE(SUM(CASE WHEN sales.ocash > 0 THEN sales.ocash ELSE 0 END), 0) AS toa, --총매출액 \r\n"
 					+ "    COALESCE(SUM(CASE WHEN sales.opoint > 0 THEN sales.opoint ELSE 0 END), 0) AS dis,  --할인금액 \r\n"
 					+ "    COALESCE(SUM(CASE WHEN sales.ocash > 0 THEN sales.ocash ELSE 0 END) - \r\n"
@@ -1230,39 +1207,36 @@ public class CafePosSystem_sale extends Panel  {
 					+ "              SUM(CASE WHEN sales.opoint > 0 THEN sales.opoint ELSE 0 END)) * 0.1, 0) AS bu,  --부가세 \r\n"
 					+ "    COALESCE((SUM(CASE WHEN sales.ocash > 0 THEN sales.ocash ELSE 0 END) - \r\n"
 					+ "              SUM(CASE WHEN sales.opoint > 0 THEN sales.opoint ELSE 0 END)) * 0.9, 0) AS cash   -- 순매출 \r\n"
-					+ "FROM menu  \r\n"
-					+ "LEFT JOIN sales ON menu.mno = sales.mno  \r\n"
+					+ "FROM menu  \r\n" + "LEFT JOIN sales ON menu.mno = sales.mno  \r\n"
 					+ "     AND TRUNC(sales.odate) = TO_DATE(?, 'YYYY-MM-DD')\r\n"
-					+ "GROUP BY menu.mno, menu.mname  \r\n"
-					+ "ORDER BY menu.mno ASC";
+					+ "GROUP BY menu.mno, menu.mname  \r\n" + "ORDER BY menu.mno ASC";
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, nowString);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-				String mno = rs.getString("mno"); //메뉴번호
-				String mname = rs.getString("mname");  //메뉴이름
-				String toa = rs.getString("toa");  //총매출액
-				String dis = rs.getString("dis");  // 할인금액
-				String todi = rs.getString("todi"); //매출금액
-				String bu = rs.getString("bu"); //부가세
-				String cash = rs.getString("cash"); //순매출
+			while (rs.next()) {
+				String mno = rs.getString("mno"); // 메뉴번호
+				String mname = rs.getString("mname"); // 메뉴이름
+				String toa = rs.getString("toa"); // 총매출액
+				String dis = rs.getString("dis"); // 할인금액
+				String todi = rs.getString("todi"); // 매출금액
+				String bu = rs.getString("bu"); // 부가세
+				String cash = rs.getString("cash"); // 순매출
 
-				ta_salesbymenu.append(String.format("%-15s","")
-						+mno+"\t\t"+mname+"\t   "+toa+"\t\t        "+dis+"\t\t     "+todi+"\t\t     "+bu+"\t\t     "+cash+"\n\n\n");
+				ta_salesbymenu.append(String.format("%-15s", "") + mno + "\t\t" + mname + "\t   " + toa + "\t\t        "
+						+ dis + "\t\t     " + todi + "\t\t     " + bu + "\t\t     " + cash + "\n\n\n");
 			}
-			
-			//조회버튼 눌렀을 떄
+
+			// 조회버튼 눌렀을 떄
 			bt_inquiry.addActionListener(new ActionListener() {
-				
+
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
+
 					try {
 						ta_salesbymenu.setText("");
 						String si3 = ci_choice4.getSelectedItem();
 						String si4 = ci_choice5.getSelectedItem();
-						sql = "SELECT \r\n"
-								+ "    menu.mno AS mno, -- 메뉴번호 \r\n"
+						sql = "SELECT \r\n" + "    menu.mno AS mno, -- 메뉴번호 \r\n"
 								+ "    menu.mname AS mname,  --메뉴명\r\n"
 								+ "    COALESCE(SUM(CASE WHEN sales.ocash > 0 THEN sales.ocash ELSE 0 END), 0) AS toa, --총매출액  \r\n"
 								+ "    COALESCE(SUM(CASE WHEN sales.opoint > 0 THEN sales.opoint ELSE 0 END), 0) AS dis,  --할인금액  \r\n"
@@ -1272,76 +1246,65 @@ public class CafePosSystem_sale extends Panel  {
 								+ "              SUM(CASE WHEN sales.opoint > 0 THEN sales.opoint ELSE 0 END)) * 0.1, 0) AS bu,  --부가세  \r\n"
 								+ "    COALESCE((SUM(CASE WHEN sales.ocash > 0 THEN sales.ocash ELSE 0 END) - \r\n"
 								+ "              SUM(CASE WHEN sales.opoint > 0 THEN sales.opoint ELSE 0 END)) * 0.9, 0) AS cash   -- 순매출   \r\n"
-								+ "FROM menu  \r\n"
-								+ "LEFT JOIN sales ON menu.mno = sales.mno  \r\n"
+								+ "FROM menu  \r\n" + "LEFT JOIN sales ON menu.mno = sales.mno  \r\n"
 								+ "    AND TRUNC(sales.odate) BETWEEN TO_DATE(?, 'YYYY-MM-DD') \r\n"
 								+ "                               AND TO_DATE(?, 'YYYY-MM-DD')\r\n"
-								+ "GROUP BY menu.mno, menu.mname  \r\n"
-								+ "ORDER BY menu.mno ASC  ";
+								+ "GROUP BY menu.mno, menu.mname  \r\n" + "ORDER BY menu.mno ASC  ";
 						ps = conn.prepareStatement(sql);
 						ps.setString(1, si3);
 						ps.setString(2, si4);
 						rs = ps.executeQuery();
-						while(rs.next()) {
-							String mno = rs.getString("mno"); //메뉴번호
-							String mname = rs.getString("mname");  //메뉴이름
-							String toa = rs.getString("toa");  //총매출액
-							String dis = rs.getString("dis");  // 할인금액
-							String todi = rs.getString("todi"); //매출금액
-							String bu = rs.getString("bu"); //부가세
-							String cash = rs.getString("cash"); //순매출
+						while (rs.next()) {
+							String mno = rs.getString("mno"); // 메뉴번호
+							String mname = rs.getString("mname"); // 메뉴이름
+							String toa = rs.getString("toa"); // 총매출액
+							String dis = rs.getString("dis"); // 할인금액
+							String todi = rs.getString("todi"); // 매출금액
+							String bu = rs.getString("bu"); // 부가세
+							String cash = rs.getString("cash"); // 순매출
 
-							ta_salesbymenu.append(String.format("%-15s","")
-									+mno+"\t\t"+mname+"\t\t"+toa+"\t\t"+dis+"\t\t"+todi+"\t\t"+bu+"\t\t"+cash+"\n\n\n");
+							ta_salesbymenu.append(String.format("%-15s", "") + mno + "\t\t" + mname + "\t\t" + toa
+									+ "\t\t" + dis + "\t\t" + todi + "\t\t" + bu + "\t\t" + cash + "\n\n\n");
 						}
-					}catch(SQLException e5) {
+					} catch (SQLException e5) {
 						e5.printStackTrace();
-						
+
 					}
-					
+
 				}
 			});
-			
-		}catch(SQLException e) {
-				e.printStackTrace();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		
+
 	}
+
 	public void listset() throws Exception {
-		//최근결제내역 
+		// 최근결제내역
 		li_employee_list.removeAll();
-		sql = "SELECT    \r\n"
-				+ "    sales.gusno AS gno,  --회원번호 \r\n"
-				+ "    CASE \r\n"
-				+ "        WHEN sales.gusno = 0 THEN '비회원'  \r\n"
-				+ "        ELSE guest.gusname  \r\n"
-				+ "    END AS gu,    -- 회원이름 \r\n"
-				+ "    menu.mname AS mu,     -- 메뉴이름 \r\n"
-				+ "    sales.ocount AS sc,   -- 해당매뉴 주문개수  \r\n"
-				+ "    sales.ocash AS so,   -- 해당메뉴의 총결제금액  \r\n"
-				+ "    sales.opoint AS op,   -- 해당메뉴의 사용 포인트  \r\n"
-				+ "    sales.odate AS da   -- 결제 시간  \r\n"
-				+ "FROM sales  \r\n"
-				+ "JOIN menu ON sales.mno = menu.mno     --  메뉴 조인해서 메뉴명 가져오고  \r\n"
+		sql = "SELECT    \r\n" + "    sales.gusno AS gno,  --회원번호 \r\n" + "    CASE \r\n"
+				+ "        WHEN sales.gusno = 0 THEN '비회원'  \r\n" + "        ELSE guest.gusname  \r\n"
+				+ "    END AS gu,    -- 회원이름 \r\n" + "    menu.mname AS mu,     -- 메뉴이름 \r\n"
+				+ "    sales.ocount AS sc,   -- 해당매뉴 주문개수  \r\n" + "    sales.ocash AS so,   -- 해당메뉴의 총결제금액  \r\n"
+				+ "    sales.opoint AS op,   -- 해당메뉴의 사용 포인트  \r\n" + "    sales.odate AS da   -- 결제 시간  \r\n"
+				+ "FROM sales  \r\n" + "JOIN menu ON sales.mno = menu.mno     --  메뉴 조인해서 메뉴명 가져오고  \r\n"
 				+ "LEFT JOIN guest ON sales.gusno = guest.gusno  -- 회원정보가 없는 경우 대비 LEFT JOIN  \r\n"
-				+ "WHERE sales.ocash >= 0  \r\n"
-				+ "ORDER BY sales.odate DESC  --최근 내역이 제일 상단으로  \r\n"
-				+ "";
+				+ "WHERE sales.ocash >= 0  \r\n" + "ORDER BY sales.odate DESC  --최근 내역이 제일 상단으로  \r\n" + "";
 		ps = conn.prepareStatement(sql);
 		rs = ps.executeQuery();
-		while(rs.next()) {
+		while (rs.next()) {
 			String gno = rs.getString("gno");
-			String gu = rs.getString("gu");  //회워명
-			String mu = rs.getString("mu");  //
+			String gu = rs.getString("gu"); // 회워명
+			String mu = rs.getString("mu"); //
 			String sc = rs.getString("sc");
 			String so = rs.getString("so");
 			String op = rs.getString("op");
 			String da = rs.getString("da");
 
-			li_employee_list.add(String.format("%-5s","")+
-					emptySet_String(gno,15)+emptySet_String(gu,18)+
-					emptySet_String(mu,16)+emptySet_String("x"+sc,15)+
-					emptySet_String(so,30)+emptySet_String(op,22)+da);
+			li_employee_list.add(String.format("%-5s", "") + emptySet_String(gno, 15) + emptySet_String(gu, 18)
+					+ emptySet_String(mu, 16) + emptySet_String("x" + sc, 15) + emptySet_String(so, 30)
+					+ emptySet_String(op, 22) + da);
 		}
 	}
 
@@ -1411,138 +1374,113 @@ public class CafePosSystem_sale extends Panel  {
 		p_table_south.add(ta_cancellationDetails, BorderLayout.SOUTH);
 
 		menuTransitionAction();
-		
+
 		// 날짜 조회 칸
-		try{
-			
-			//왼쪽 오래된 날짜 우선 
-			sql = "select distinct\r\n"
-					+ "    to_char(odate,'YYYY-MM-DD')as day\r\n"
-					+ "from sales\r\n"
+		try {
+
+			// 왼쪽 오래된 날짜 우선
+			sql = "select distinct\r\n" + "    to_char(odate,'YYYY-MM-DD')as day\r\n" + "from sales\r\n"
 					+ "order by day asc";
 			ps = conn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-					String ymd = rs.getString("day");
-					ci_choice1.add(ymd);
+			while (rs.next()) {
+				String ymd = rs.getString("day");
+				ci_choice1.add(ymd);
 			}
-			
-			//오른쪽 최근날짜 우선 
-			sql = "select distinct\r\n"
-					+ "    to_char(odate,'YYYY-MM-DD')as day\r\n"
-					+ "from sales\r\n"
+
+			// 오른쪽 최근날짜 우선
+			sql = "select distinct\r\n" + "    to_char(odate,'YYYY-MM-DD')as day\r\n" + "from sales\r\n"
 					+ "order by day desc";
 			ps = conn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-					String ymd = rs.getString("day");
-					ci_choice2.add(ymd);
+			while (rs.next()) {
+				String ymd = rs.getString("day");
+				ci_choice2.add(ymd);
 			}
-			
-			// 기본 창 취소 내역 출력 금일 날짜 만 최신순 부터 
-			// 금일 날짜 불러 오기 
+
+			// 기본 창 취소 내역 출력 금일 날짜 만 최신순 부터
+			// 금일 날짜 불러 오기
 			// 날짜 패턴 설정
 			String pattern1 = "yyyy-MM-dd";
 			SimpleDateFormat sdf1 = new SimpleDateFormat(pattern1);
 			// 현재 날짜 가져오기
 			Date now = new Date();
 			String nowString = sdf1.format(now);
-			sql = "SELECT\r\n"
-					+ "    menu.mno AS mno,   --메뉴번호 \r\n"
-					+ "    menu.mname AS mm,   --메뉴이름 \r\n"
-					+ "    ABS(sales.ocash) as sc,   --취소금액 \r\n"
-					+ "    sales.ocount AS snt,\r\n"
-					+ "    CASE \r\n"
-					+ "        WHEN sales.gusno = 0 THEN '비회원'  \r\n"
-					+ "        ELSE guest.gusname \r\n"
-					+ "    END AS gn,   -- 회원이름 \r\n"
-					+ "    CASE \r\n"
-					+ "        WHEN sales.gusno = 0 THEN 'Unrank'\r\n"
-					+ "        ELSE rank.rname\r\n"
-					+ "    END AS rr, -- 회원등급 \r\n"
-					+ "    sales.odate AS so  --결제날짜 \r\n"
-					+ "FROM sales\r\n"
-					+ "LEFT JOIN menu ON sales.mno = menu.mno\r\n"
-					+ "LEFT JOIN guest ON sales.gusno = guest.gusno\r\n"
-					+ "LEFT JOIN rank ON guest.rname = rank.rname\r\n"
-					+ "WHERE sales.ocash < 0\r\n"
+			sql = "SELECT\r\n" + "    menu.mno AS mno,   --메뉴번호 \r\n" + "    menu.mname AS mm,   --메뉴이름 \r\n"
+					+ "    ABS(sales.ocash) as sc,   --취소금액 \r\n" + "    sales.ocount AS snt,\r\n" + "    CASE \r\n"
+					+ "        WHEN sales.gusno = 0 THEN '비회원'  \r\n" + "        ELSE guest.gusname \r\n"
+					+ "    END AS gn,   -- 회원이름 \r\n" + "    CASE \r\n"
+					+ "        WHEN sales.gusno = 0 THEN 'Unrank'\r\n" + "        ELSE rank.rname\r\n"
+					+ "    END AS rr, -- 회원등급 \r\n" + "    sales.odate AS so  --결제날짜 \r\n" + "FROM sales\r\n"
+					+ "LEFT JOIN menu ON sales.mno = menu.mno\r\n" + "LEFT JOIN guest ON sales.gusno = guest.gusno\r\n"
+					+ "LEFT JOIN rank ON guest.rname = rank.rname\r\n" + "WHERE sales.ocash < 0\r\n"
 					+ "AND TRUNC(odate) = TO_DATE(?, 'YYYY-MM-DD')";
 			ps = conn.prepareStatement(sql);
 			ps.setString(1, nowString);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-				String mno = rs.getString("mno"); //메뉴번호
-				String mm = rs.getString("mm");  //메뉴이름
-				String sc = rs.getString("sc");  //취소금액
-				String snt = rs.getString("snt");  // 주문갯수
-				String gn = rs.getString("gn"); //회원이름
-				String rr = rs.getString("rr"); //회원등급
-				String so = rs.getString("so"); //결제날짜
+			while (rs.next()) {
+				String mno = rs.getString("mno"); // 메뉴번호
+				String mm = rs.getString("mm"); // 메뉴이름
+				String sc = rs.getString("sc"); // 취소금액
+				String snt = rs.getString("snt"); // 주문갯수
+				String gn = rs.getString("gn"); // 회원이름
+				String rr = rs.getString("rr"); // 회원등급
+				String so = rs.getString("so"); // 결제날짜
 
-				ta_cancellationDetails.append(String.format("%-15s","")
-						+mno+"\t\t"+mm+"x"+snt+"\t\t"+sc+"\t\t"+gn+"\t\t"+rr+"\t\t"+so+"\n");
-				
+				ta_cancellationDetails.append(String.format("%-15s", "") + mno + "\t\t" + mm + "x" + snt + "\t\t" + sc
+						+ "\t\t" + gn + "\t\t" + rr + "\t\t" + so + "\n");
+
 			}
-			
-			//조회 버튼 눌렀을 때 
+
+			// 조회 버튼 눌렀을 때
 			bt_inquiry.addActionListener(new ActionListener() {
-				
+
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					try {
 						ta_cancellationDetails.setText("");
 						String si1 = ci_choice1.getSelectedItem();
 						String si2 = ci_choice2.getSelectedItem();
-						sql = "SELECT\r\n"
-								+ "    menu.mno AS mno,   --메뉴번호 \r\n"
-								+ "    menu.mname AS mm,   --메뉴이름 \r\n"
-								+ "    ABS(sales.ocash) as sc,   --취소금액 \r\n"
-								+ "    sales.ocount AS snt,\r\n"
-								+ "    CASE \r\n"
-								+ "        WHEN sales.gusno = 0 THEN '비회원'  \r\n"
-								+ "        ELSE guest.gusname \r\n"
-								+ "    END AS gn,   -- 회원이름 \r\n"
-								+ "    CASE \r\n"
-								+ "        WHEN sales.gusno = 0 THEN 'Unrank'\r\n"
-								+ "        ELSE rank.rname\r\n"
-								+ "    END AS rr, -- 회원등급 \r\n"
-								+ "    sales.odate AS so  --결제날짜 \r\n"
-								+ "FROM sales\r\n"
-								+ "LEFT JOIN menu ON sales.mno = menu.mno\r\n"
+						sql = "SELECT\r\n" + "    menu.mno AS mno,   --메뉴번호 \r\n"
+								+ "    menu.mname AS mm,   --메뉴이름 \r\n" + "    ABS(sales.ocash) as sc,   --취소금액 \r\n"
+								+ "    sales.ocount AS snt,\r\n" + "    CASE \r\n"
+								+ "        WHEN sales.gusno = 0 THEN '비회원'  \r\n" + "        ELSE guest.gusname \r\n"
+								+ "    END AS gn,   -- 회원이름 \r\n" + "    CASE \r\n"
+								+ "        WHEN sales.gusno = 0 THEN 'Unrank'\r\n" + "        ELSE rank.rname\r\n"
+								+ "    END AS rr, -- 회원등급 \r\n" + "    sales.odate AS so  --결제날짜 \r\n"
+								+ "FROM sales\r\n" + "LEFT JOIN menu ON sales.mno = menu.mno\r\n"
 								+ "LEFT JOIN guest ON sales.gusno = guest.gusno\r\n"
-								+ "LEFT JOIN rank ON guest.rname = rank.rname\r\n"
-								+ "WHERE sales.ocash < 0\r\n"
+								+ "LEFT JOIN rank ON guest.rname = rank.rname\r\n" + "WHERE sales.ocash < 0\r\n"
 								+ "AND TRUNC(odate) BETWEEN TO_DATE(?, 'YYYY-MM-DD') \r\n"
-								+ "                     AND TO_DATE(?, 'YYYY-MM-DD')\r\n"
-								+ "";	
+								+ "                     AND TO_DATE(?, 'YYYY-MM-DD')\r\n" + "";
 						ps = conn.prepareStatement(sql);
 						ps.setString(1, si1);
 						ps.setString(2, si2);
 						rs = ps.executeQuery();
-						while(rs.next()) {
-							String mno = rs.getString("mno"); //메뉴번호
-							String mm = rs.getString("mm");  //메뉴이름
-							String sc = rs.getString("sc");  //취소금액
-							String snt = rs.getString("snt");  // 주문갯수
-							String gn = rs.getString("gn"); //회원이름
-							String rr = rs.getString("rr"); //회원등급
-							String so = rs.getString("so"); //결제날짜
-							
-							ta_cancellationDetails.append(String.format("%-15s","")
-									+mno+"\t\t"+mm+"x"+snt+"\t\t"+sc+"\t\t"+gn+"\t\t"+rr+"\t\t"+so+"\n");
-							
+						while (rs.next()) {
+							String mno = rs.getString("mno"); // 메뉴번호
+							String mm = rs.getString("mm"); // 메뉴이름
+							String sc = rs.getString("sc"); // 취소금액
+							String snt = rs.getString("snt"); // 주문갯수
+							String gn = rs.getString("gn"); // 회원이름
+							String rr = rs.getString("rr"); // 회원등급
+							String so = rs.getString("so"); // 결제날짜
+
+							ta_cancellationDetails.append(String.format("%-15s", "") + mno + "\t\t" + mm + "x" + snt
+									+ "\t\t" + sc + "\t\t" + gn + "\t\t" + rr + "\t\t" + so + "\n");
+
 						}
-					}catch(SQLException e3) {
+					} catch (SQLException e3) {
 						e3.printStackTrace();
 					}
-					
+
 				}
 			});
-			
-		}catch(SQLException e) {
-				e.printStackTrace();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		
+
 	}
 
 	public void internetbanking() {
@@ -1587,7 +1525,6 @@ public class CafePosSystem_sale extends Panel  {
 		JSeparator separator = new JSeparator();
 		p_table_north.add(separator, BorderLayout.SOUTH);
 		separator.setForeground(Color.pink);
-
 
 		// 메인 센터 보더레이아웃 Panel
 		Panel p_table_center = new Panel(new BorderLayout());
@@ -1800,7 +1737,6 @@ public class CafePosSystem_sale extends Panel  {
 		bt_t8.setEditable(false);
 		bt_t9.setEditable(false);
 		bt_t10.setEditable(false);
-		
 
 		TextArea bt_t11 = new TextArea("", 1, 1, TextArea.SCROLLBARS_NONE);
 		TextArea bt_t12 = new TextArea("", 1, 1, TextArea.SCROLLBARS_NONE);
@@ -1812,7 +1748,7 @@ public class CafePosSystem_sale extends Panel  {
 		TextArea bt_t18 = new TextArea("", 1, 1, TextArea.SCROLLBARS_NONE);
 		TextArea bt_t19 = new TextArea("", 1, 1, TextArea.SCROLLBARS_NONE);
 		TextArea bt_t20 = new TextArea("", 1, 1, TextArea.SCROLLBARS_NONE);
-		
+
 		bt_t11.setEditable(false);
 		bt_t12.setEditable(false);
 		bt_t13.setEditable(false);
@@ -1954,39 +1890,41 @@ public class CafePosSystem_sale extends Panel  {
 				validate();
 			}
 		});
-	
+
 	}
-	// 칸 띄워서 정렬 하기 
+
+	// 칸 띄워서 정렬 하기
 	// 문자열
-		public static String emptySet_String(String text,int length) {
-		
-	      StringBuffer empty_s=new StringBuffer();
-	      StringBuffer result=new StringBuffer();
-	      length-=text.length()*3;
-	      for(int i=0;i<length;i++) {
-	         empty_s.append(" ");
-	      }
-	      result.append(text);
-	      result.append(empty_s.toString());
-	      
-	       return result.toString();
+	public static String emptySet_String(String text, int length) {
+
+		StringBuffer empty_s = new StringBuffer();
+		StringBuffer result = new StringBuffer();
+		length -= text.length() * 3;
+		for (int i = 0; i < length; i++) {
+			empty_s.append(" ");
 		}
-	  // 숫자형 
-	   public static String emptySet_num(String text,int length) {
-	      
-	      StringBuffer empty_s=new StringBuffer();
-	      StringBuffer result=new StringBuffer();
-	      length-=text.length()*2;
-	      for(int i=0;i<length;i++) {
-	         empty_s.append(" ");
-	      }
-	      if(text.length()<4) {
-	      empty_s.deleteCharAt(0);
-	      }
-	      result.append(text);
-	      result.append(empty_s.toString());
-	      
-	      return result.toString();
-	   }
-		   
+		result.append(text);
+		result.append(empty_s.toString());
+
+		return result.toString();
+	}
+
+	// 숫자형
+	public static String emptySet_num(String text, int length) {
+
+		StringBuffer empty_s = new StringBuffer();
+		StringBuffer result = new StringBuffer();
+		length -= text.length() * 2;
+		for (int i = 0; i < length; i++) {
+			empty_s.append(" ");
+		}
+		if (text.length() < 4) {
+			empty_s.deleteCharAt(0);
+		}
+		result.append(text);
+		result.append(empty_s.toString());
+
+		return result.toString();
+	}
+
 }

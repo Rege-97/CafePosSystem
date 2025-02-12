@@ -24,20 +24,7 @@ public class CafePosSystem_emp2 extends   Panel {
    List li_viewList;
    boolean sw;
    
-   int gusno;
-   String gusname;
-   int guspoint;
-   String gustel;
-   String rname;
-   double rpoint;
-   int mno;
-   String mname;
-   int mprice;
-   int ono;
-   String odate;
-   int opoint;
-   int ocash;
-   int ocount;
+  
    int eno;
    String ename;
    String gname;
@@ -45,8 +32,7 @@ public class CafePosSystem_emp2 extends   Panel {
    String eid;
    String epwd;
    String gsal;
-   int money;
-   int gussale;
+  
    Connection conn;
    String sql;
 
@@ -394,6 +380,18 @@ public class CafePosSystem_emp2 extends   Panel {
          
          
          // 이벤트
+         
+         // 엔터로 검색
+         tf_searchEmp.addKeyListener(new KeyAdapter() {
+        	 @Override
+ 			public void keyPressed(KeyEvent e) {
+ 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+ 					searchEmp();
+ 	               reset2();
+ 				}
+        	 }
+		});
+         
          // 검색
          bt_searchEmp.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {

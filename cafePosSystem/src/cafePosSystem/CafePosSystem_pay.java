@@ -292,6 +292,16 @@ public class CafePosSystem_pay extends Panel {
 
 		// 이벤트
 
+		tf_guest.addKeyListener(new KeyAdapter() {
+			// 엔터로 고객 검색
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					searchGuest();
+				}
+			}
+		});
+
 		tf_menu_count.addKeyListener(new KeyAdapter() {
 			// 숫자 이외의 입력 방지
 			@Override
@@ -301,6 +311,7 @@ public class CafePosSystem_pay extends Panel {
 				}
 
 			}
+
 			// 엔터키 입력 시 메뉴 선택
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -329,6 +340,7 @@ public class CafePosSystem_pay extends Panel {
 				}
 
 			}
+
 			// 받은 금액 입력후 엔터키 입력 시 결제
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -456,6 +468,7 @@ public class CafePosSystem_pay extends Panel {
 				tf_gusname.setText("비회원");
 				tf_gusrank.setText("Unrank");
 				tf_guest_point.setText("0");
+				tf_usepoint.setText("0");
 
 			}
 		});
@@ -508,26 +521,26 @@ public class CafePosSystem_pay extends Panel {
 		}
 		balance = allmoney - usepoint - getmoney;
 		change = usepoint + getmoney - allmoney;
-		
-		
+
 		if (balance < 0) {
 			balance = 0;
 		}
 		if (change < 0) {
 			change = 0;
 		}
-		if(allmoney<=usepoint) {
+		if (allmoney <= usepoint) {
 			change = 0;
 		}
 
 		tf_balance.setText(money_format.format(balance));
 		tf_change.setText(money_format.format(change));
-		
+
 	}
 
 	// 메뉴 리스트 자동 생성 메서드
 	public void menuListUp() {
 		try {
+			li_menu.removeAll();
 			sql = "select * from menu order by mno";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
@@ -581,10 +594,10 @@ public class CafePosSystem_pay extends Panel {
 	// 메뉴 리스트에 추가하는 메서드
 	public void selectMenuAdd() {
 		try {
-			StringTokenizer st=new StringTokenizer(li_menu.getSelectedItem());
-			
+			StringTokenizer st = new StringTokenizer(li_menu.getSelectedItem());
+
 			String mno_s = st.nextToken();
-			mno=Integer.parseInt(mno_s);
+			mno = Integer.parseInt(mno_s);
 
 			sql = "select * from menu where mno=?";
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -609,6 +622,7 @@ public class CafePosSystem_pay extends Panel {
 			hm_select_menu_count.put(mno, mno_count);
 			hm_select_menu_price.put(mno, mprice_all);
 			boolean hasMenu = false;
+			
 			String empty = "";
 			String empty_p = "";
 
@@ -764,27 +778,25 @@ public class CafePosSystem_pay extends Panel {
 				while (rs.next()) {
 					bank_to_money = rs.getInt("money");
 				}
-				
-				int deposit=(int) ((allmoney * 0.9) - usepoint);
+
+				int deposit = (int) ((allmoney * 0.9) - usepoint);
 				bank_to_money = bank_to_money + deposit;
 				sql = "update bank set money=?";
 				ps = conn.prepareStatement(sql);
 				ps.setInt(1, bank_to_money);
 				ps.executeUpdate();
-				
-				
+
 				// 뱅킹 기록
 				Calendar now = Calendar.getInstance();
 				java.sql.Timestamp jst = new java.sql.Timestamp(now.getTimeInMillis());
-				sql="insert into banking values(sq_banking_bno.nextval,?,?,?,?)";
-				ps=conn.prepareStatement(sql);
+				sql = "insert into banking values(sq_banking_bno.nextval,?,?,?,?)";
+				ps = conn.prepareStatement(sql);
 				ps.setString(1, "판매수익");
-				ps.setInt(2,deposit );
+				ps.setInt(2, deposit);
 				ps.setInt(3, bank_to_money);
 				ps.setTimestamp(4, jst);
-				
+
 				ps.execute();
-				
 
 				if (!tf_gusno.getText().equals("0")) {
 					if (usepoint > 0) {
@@ -826,6 +838,7 @@ public class CafePosSystem_pay extends Panel {
 					ps.setInt(1, gusno);
 					while (rs.next()) {
 						gussale = rs.getInt("gussale");
+						rname = rs.getString("rname");
 					}
 
 					gussale += allmoney;
@@ -836,33 +849,45 @@ public class CafePosSystem_pay extends Panel {
 					ps.executeUpdate();
 
 					// 회원등급 상승
-					if (gussale >= 50000 && gussale < 100000 && tf_gusrank.getText().equals("Bronze")) {
-						sql = "update guest set rname=? where gusno=?";
-						ps = conn.prepareStatement(sql);
-						ps.setString(1, "Silver");
-						ps.setInt(2, gusno);
-						rankup = ps.executeUpdate();
-						rankname = "Silver";
-					} else if (gussale >= 100000 && gussale < 200000 && tf_gusrank.getText().equals("Silver")) {
-						sql = "update guest set rname=? where gusno=?";
-						ps = conn.prepareStatement(sql);
-						ps.setString(1, "Gold");
-						ps.setInt(2, gusno);
-						rankup = ps.executeUpdate();
-						rankname = "Gold";
-					} else if (gussale >= 200000 && tf_gusrank.getText().equals("Gold")) {
-						sql = "update guest set rname=? where gusno=?";
-						ps = conn.prepareStatement(sql);
-						ps.setString(1, "Platinum");
-						ps.setInt(2, gusno);
-						rankup = ps.executeUpdate();
-						rankname = "Platinum";
+					String[] ranks = { "Bronze", "Silver", "Gold", "Platinum" };
+					int[] gussales = { 50000, 100000, 200000 };
+
+					int index1 = 0;
+
+					for (int i = 0; i < ranks.length; i++) {
+						if (ranks[i].equals(rname)) {
+							index1 = i;
+							break;
+						}
+					}
+					if (index1 != ranks.length - 1) {
+
+						int index2 = 0;
+						for (int i = index1; i < gussales.length; i++) {
+							if (gussale >= gussales[i]) {
+								index2 = i + 1;
+							}else {
+								break;
+							}
+						}
+
+						if (index2 != index1) {
+							rname = ranks[index2];
+
+							sql = "update guest set rname=? where gusno=?";
+							ps = conn.prepareStatement(sql);
+							ps.setString(1, rname);
+							ps.setInt(2, gusno);
+							ps.executeUpdate();
+							rankup = 1;
+							rankname = rname;
+
+						}
 					}
 
 				}
 				// 결제 기록 저장
 
-				
 				int menucount = 0;
 				int menuprice = 0;
 
@@ -898,10 +923,8 @@ public class CafePosSystem_pay extends Panel {
 				rs.close();
 				ps.close();
 
-				puw.showPopUp( this,rankup,rankname);
+				puw.showPopUp(this, rankup, rankname);
 			}
-
-		
 
 		} catch (Exception e1) {
 			e1.printStackTrace();
@@ -912,9 +935,9 @@ public class CafePosSystem_pay extends Panel {
 	// 회원 정보 선택 메서드
 	public void guestSelect() {
 		try {
-			
-			StringTokenizer st=new StringTokenizer(li_guest.getSelectedItem());
-			gusno=Integer.parseInt(st.nextToken());
+
+			StringTokenizer st = new StringTokenizer(li_guest.getSelectedItem());
+			gusno = Integer.parseInt(st.nextToken());
 
 			sql = "select * from guest where gusno=?";
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -941,7 +964,7 @@ public class CafePosSystem_pay extends Panel {
 			e1.printStackTrace();
 		}
 	}
-	
+
 	// 공백 생성(한글)
 	public static String emptySet_Kor(String text, int length) {
 
@@ -956,6 +979,7 @@ public class CafePosSystem_pay extends Panel {
 
 		return result.toString();
 	}
+
 	// 공백 생성
 	public static String emptySet(String text, int length) {
 
