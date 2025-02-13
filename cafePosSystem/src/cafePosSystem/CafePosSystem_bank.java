@@ -725,16 +725,11 @@ public class CafePosSystem_bank extends Panel {
 			
 			
 			
-			timer = new Timer(10, new ActionListener() {
+			timer = new Timer(50, new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					lb_gamemain.setText(eno.get(index) + " " + ename.get(index));
-//					index += 1;
-//					if (index == eno.size()) {
-//						index = 0;
-//					}
-					
-					index=(int)(Math.random()*eno.size())+1;
+					index=(int)(Math.random()*(eno.size()-2))+2;
 				}
 			});
 			timer.start();

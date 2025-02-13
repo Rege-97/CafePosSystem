@@ -59,6 +59,10 @@ public class MainFrame extends Frame implements ActionListener {
 	String sql;
 	String gname;
 	PopUpWindow puw;
+	
+	public static final String url = "jdbc:oracle:thin:@192.168.0.144:1521:xe";
+	public static final String user = "scott";
+	public static final String pwd = "1234";
 
 	public MainFrame() {
 		try {
@@ -83,7 +87,6 @@ public class MainFrame extends Frame implements ActionListener {
 			puw = new PopUpWindow(this);
 
 			gname = "";
-
 
 			login();
 
@@ -202,9 +205,10 @@ public class MainFrame extends Frame implements ActionListener {
 		p_center_center_center.add(cb_checkpwd);
 		p_center_center_center.add(bt_findid);
 		p_center_center_center.add(bt_findpwd);
-		boolean hasauto = false;
+		
 
 		// 저장된 ID 체크
+		boolean hasauto = false;
 		try {
 			sql = "select * from employee where eauto = 1";
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -227,9 +231,7 @@ public class MainFrame extends Frame implements ActionListener {
 
 		// 이벤트
 
-		tf_id.setFocusable(true);
 		this.setFocusable(true);
-
 		this.addKeyListener(new KeyAdapter() {
 			// 엔터로 로그인
 			@Override
@@ -452,9 +454,6 @@ public class MainFrame extends Frame implements ActionListener {
 					this.add(p_center, "Center");
 					this.validate();
 				}
-				
-				
-
 			} else if (ob == bt_sale) {
 				remove(p_center);
 				p_center = new CafePosSystem_sale(this, conn);
@@ -523,7 +522,7 @@ public class MainFrame extends Frame implements ActionListener {
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'최서연', 4523, '010-4567-8901', 'Platinum', 275000)");
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'김도현', 1103, '010-1357-2468', 'Gold', 179300)");
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'조하준', 5821, '010-7890-1234', 'Gold', 128400)");
-				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'박지후', 1290, '010-3456-7890', 'Gold', 152300)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'박현진', 1290, '010-3456-7890', 'Gold', 152300)");
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'장현우', 7852, '010-9012-3456', 'Bronze', 47800)");
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'최서호', 4732, '010-4680-5791', 'Silver', 68500)");
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'윤지민', 3104, '010-8901-2345', 'Platinum', 322000)");
@@ -536,6 +535,19 @@ public class MainFrame extends Frame implements ActionListener {
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'박예준', 8290, '010-3579-4680', 'Bronze', 12800)");
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'강채원', 8391, '010-6802-7913', 'Platinum', 410000)");
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'임도윤', 3948, '010-0246-1357', 'Platinum', 260000)");
+				st.addBatch("INSERT INTO SALES VALUES (sq_sales_ono.nextval, 1, 0, 0, 4000, TO_DATE('2025-02-13 23:50:01', 'YYYY-MM-DD HH24:MI:SS'), 1)");
+				st.addBatch("INSERT INTO SALES VALUES (sq_sales_ono.nextval, 1, 0, 0, 4000, TO_DATE('2025-02-07 23:50:12', 'YYYY-MM-DD HH24:MI:SS'), 1)");
+				st.addBatch("INSERT INTO SALES VALUES (sq_sales_ono.nextval, 7, 0, 0, 5500, TO_DATE('2025-01-14 23:50:14', 'YYYY-MM-DD HH24:MI:SS'), 1)");
+				st.addBatch("INSERT INTO SALES VALUES (sq_sales_ono.nextval, 6, 0, 0, 5500, TO_DATE('2025-02-10 23:50:03', 'YYYY-MM-DD HH24:MI:SS'), 1)");
+				st.addBatch("INSERT INTO SALES VALUES (sq_sales_ono.nextval, 2, 0, 0, 4500, TO_DATE('2025-02-11 23:50:05', 'YYYY-MM-DD HH24:MI:SS'), 1)");
+				st.addBatch("INSERT INTO SALES VALUES (sq_sales_ono.nextval, 3, 0, 0, 4500, TO_DATE('2025-02-14 23:50:17', 'YYYY-MM-DD HH24:MI:SS'), 1)");
+				st.addBatch("INSERT INTO SALES VALUES (sq_sales_ono.nextval, 4, 0, 0, 5000, TO_DATE('2025-02-15 23:50:19', 'YYYY-MM-DD HH24:MI:SS'), 1)");
+				st.addBatch("INSERT INTO SALES VALUES (sq_sales_ono.nextval, 5, 0, 0, 5000, TO_DATE('2025-02-16 23:50:21', 'YYYY-MM-DD HH24:MI:SS'), 1)");
+				st.addBatch("INSERT INTO SALES VALUES (sq_sales_ono.nextval, 5, 0, 0, -5000, TO_DATE('2025-02-14 23:50:30', 'YYYY-MM-DD HH24:MI:SS'), 1)");
+				st.addBatch("INSERT INTO SALES VALUES (sq_sales_ono.nextval, 1, 0, 0, -4500, TO_DATE('2025-02-14 23:50:32', 'YYYY-MM-DD HH24:MI:SS'), 1)");
+				st.addBatch("INSERT INTO SALES VALUES (sq_sales_ono.nextval, 2, 0, 0, -4500, TO_DATE('2025-02-14 23:50:34', 'YYYY-MM-DD HH24:MI:SS'), 1)");
+				st.addBatch("INSERT INTO SALES VALUES (sq_sales_ono.nextval, 2, 0, 0, -4500, TO_DATE('2025-02-14 23:50:36', 'YYYY-MM-DD HH24:MI:SS'), 1)");
+				st.addBatch("INSERT INTO SALES VALUES (sq_sales_ono.nextval, 2, 0, 0, -4500, TO_DATE('2025-02-14 23:50:38', 'YYYY-MM-DD HH24:MI:SS'), 1)");
 
 				
 				st.executeBatch();
@@ -614,9 +626,6 @@ public class MainFrame extends Frame implements ActionListener {
 	public static void main(String[] args) throws Exception {
 
 		Class.forName("oracle.jdbc.driver.OracleDriver");
-		String url = "jdbc:oracle:thin:@localhost:1521:xe";
-		String user = "scott";
-		String pwd = "1234";
 
 		conn = DriverManager.getConnection(url, user, pwd);
 		new MainFrame();
