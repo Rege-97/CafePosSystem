@@ -66,6 +66,8 @@ public class MainFrame extends Frame implements ActionListener {
 
 	public MainFrame() {
 		try {
+			
+			setTitle("CAFE DMOA POS SYSTEM v1.0");
 			setSize(800, 600);
 			setVisible(true);
 
@@ -495,7 +497,7 @@ public class MainFrame extends Frame implements ActionListener {
 				st.addBatch("create sequence sq_banking_bno");
 				st.addBatch("insert into bank values(100000)");
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'박현진',200,'010-1234-1234','Gold' ,199000)");
-				st.addBatch("insert into employee values(sq_employee_eno.nextval,'김채현','MANAGER','010-2345-6789','a1','1234',0)");
+				st.addBatch("insert into employee values(sq_employee_eno.nextval,'김채현','MANAGER','010-2345-6789','a1','qlalfqjsgh0416',0)");
 				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '남광준', 'STAFF', '010-1818-3344', 'a2', '1234', 0)");
 				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '김범희', 'MANAGER', '010-9172-4823', 'a3', '1234', 0)");
 				st.addBatch("INSERT INTO employee VALUES (sq_employee_eno.NEXTVAL, '김도영', 'ALBAR', '010-4628-7391', 'a4', '1234', 0)");
@@ -522,7 +524,7 @@ public class MainFrame extends Frame implements ActionListener {
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'최서연', 4523, '010-4567-8901', 'Platinum', 275000)");
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'김도현', 1103, '010-1357-2468', 'Gold', 179300)");
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'조하준', 5821, '010-7890-1234', 'Gold', 128400)");
-				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'박현진', 1290, '010-3456-7890', 'Gold', 152300)");
+				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'박주연', 1290, '010-3456-7890', 'Gold', 152300)");
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'장현우', 7852, '010-9012-3456', 'Bronze', 47800)");
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'최서호', 4732, '010-4680-5791', 'Silver', 68500)");
 				st.addBatch("insert into guest values(sq_guest_gusno.nextval,'윤지민', 3104, '010-8901-2345', 'Platinum', 322000)");
