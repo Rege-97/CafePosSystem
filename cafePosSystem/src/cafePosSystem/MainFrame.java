@@ -235,7 +235,7 @@ public class MainFrame extends Frame implements ActionListener {
 
 		this.setFocusable(true);
 		this.addKeyListener(new KeyAdapter() {
-			// 엔터로 로그인
+			// 엔터로 로그인 
 			@Override
 			public void keyPressed(KeyEvent e) {
 				try {
