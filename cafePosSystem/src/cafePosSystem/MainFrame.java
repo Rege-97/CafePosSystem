@@ -231,7 +231,7 @@ public class MainFrame extends Frame implements ActionListener {
 			e.printStackTrace();
 		}
 
-		// 이벤트
+		// 이벤트 
 
 		this.setFocusable(true);
 		this.addKeyListener(new KeyAdapter() {
